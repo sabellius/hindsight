@@ -18,6 +18,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+import { AccountSwitcher } from "@/components/layout/account-switcher";
+
 const navigation = [
   { href: "/", label: "Dashboard", icon: BarChart3 },
   { href: "/trades", label: "Trades", icon: TrendingUp },
@@ -29,9 +31,11 @@ const navigation = [
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  accounts: { id: number; name: string; type: string }[];
+  activeAccountId: number;
 }
 
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export function Sidebar({ collapsed, onToggle, accounts, activeAccountId }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -104,6 +108,12 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           );
         })}
       </nav>
+
+      {!collapsed && (
+        <div className="border-t border-sidebar-border p-2">
+          <AccountSwitcher accounts={accounts} activeAccountId={activeAccountId} />
+        </div>
+      )}
     </aside>
   );
 }

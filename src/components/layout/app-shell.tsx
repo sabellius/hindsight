@@ -11,7 +11,15 @@ function getInitialCollapsed() {
   return localStorage.getItem(COLLAPSED_KEY) === "true";
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  accounts,
+  activeAccountId,
+}: {
+  children: React.ReactNode;
+  accounts: { id: number; name: string; type: string }[];
+  activeAccountId: number;
+}) {
   const [collapsed, setCollapsed] = useState(getInitialCollapsed);
 
   function toggle() {
@@ -23,7 +31,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <TooltipProvider>
       <div className="flex h-screen overflow-hidden bg-background">
-        <Sidebar collapsed={collapsed} onToggle={toggle} />
+        <Sidebar
+          collapsed={collapsed}
+          onToggle={toggle}
+          accounts={accounts}
+          activeAccountId={activeAccountId}
+        />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </TooltipProvider>
