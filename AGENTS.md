@@ -74,17 +74,21 @@ src/
 ```sql
 trades: id, ticker, side, strategy_id, entry_time, exit_time,
         entry_price, exit_price, quantity, stop_loss, target,
-        commission, pnl, pnl_pct, r_multiple, conviction,
-        process_grade, notes, ibkr_order_id, created_at
+        commission, profit_loss, profit_loss_percent, risk_multiple,
+        conviction, process_grade, notes, ibkr_order_id, created_at
 
 strategies: id, name, description, rules
 
 sessions: id, date, pre_market_plan, market_condition,
-          mood, energy, review_notes
+          mood, energy, daily_grade, followed_risk_rules,
+          waited_for_setups, no_forced_trades, hit_daily_target,
+          review_notes
 
 trade_screenshots: id, trade_id, type (entry/exit), filepath
 
 tags: id, trade_id, name
+
+settings: key, value
 ```
 
 ## Phases
