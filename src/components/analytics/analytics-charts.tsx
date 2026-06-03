@@ -170,9 +170,9 @@ export function AnalyticsCharts({ data, days }: AnalyticsChartsProps) {
                       }}
                     />
                     <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                      {data.byDayOfWeek.map((entry, index) => (
+                      {data.byDayOfWeek.map((entry) => (
                         <Cell
-                          key={index}
+                          key={entry.name}
                           fill={entry.value >= 0 ? "#22C55E" : "#EF4444"}
                           fillOpacity={0.7}
                         />
@@ -204,9 +204,9 @@ export function AnalyticsCharts({ data, days }: AnalyticsChartsProps) {
                       }}
                     />
                     <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-                      {data.riskDistribution.map((entry, index) => (
+                      {data.riskDistribution.map((entry) => (
                         <Cell
-                          key={index}
+                          key={entry.label}
                           fill={entry.isPositive ? "#22C55E" : "#EF4444"}
                           fillOpacity={0.7}
                         />
@@ -265,7 +265,7 @@ export function AnalyticsCharts({ data, days }: AnalyticsChartsProps) {
                 <div className="flex flex-wrap gap-1.5">
                   {data.streaks.map((s, i) => (
                     <div
-                      key={i}
+                      key={`${s.ticker}-${i}`}
                       className="h-4 w-4 rounded-sm"
                       style={{
                         backgroundColor: s.isWin

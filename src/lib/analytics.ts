@@ -2,14 +2,14 @@ import { sql, desc } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { trades } from "@/lib/db/schema";
 
-export async function getAnalyticsData(days: number) {
+export async function getAnalyticsData(days: number, accountId: number) {
   const since = new Date();
   since.setDate(since.getDate() - days);
 
   const allTrades = await db
     .select()
     .from(trades)
-    .where(sql`${trades.entryTime} >= ${since.getTime() / 1000}`)
+    .where(sql`${trades.entryTime} >= ${since.getTime()} AND ${trades.accountId} = ${accountId}`)
     .orderBy(desc(trades.entryTime));
 
   const totalTrades = allTrades.length;
