@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
   const result = await db
     .insert(trades)
     .values({
+      accountId: Number(formData.get("accountId")),
       ticker: formData.get("ticker") as string,
       side: "long",
       entryTime: new Date(formData.get("entryTime") as string),

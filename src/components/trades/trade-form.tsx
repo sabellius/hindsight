@@ -14,13 +14,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-export function TradeForm() {
+export function TradeForm({ accountId }: { accountId: number }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
 
   async function handleSubmit(formData: FormData) {
     setPending(true);
     try {
+      formData.set("accountId", String(accountId));
       const res = await fetch("/api/trades", {
         method: "POST",
         body: formData,

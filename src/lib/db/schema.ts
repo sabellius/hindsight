@@ -1,7 +1,20 @@
 import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
+export const accounts = sqliteTable("accounts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  type: text("type", { enum: ["live", "paper"] }).notNull().default("live"),
+  broker: text("broker"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
 export const trades = sqliteTable("trades", {
   id: integer("id").primaryKey({ autoIncrement: true }),
+  accountId: integer("account_id")
+    .notNull()
+    .references(() => accounts.id),
   ticker: text("ticker").notNull(),
   side: text("side", { enum: ["long"] })
     .notNull()
@@ -29,14 +42,20 @@ export const trades = sqliteTable("trades", {
 
 export const strategies = sqliteTable("strategies", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  name: text("name").notNull().unique(),
+  accountId: integer("account_id")
+    .notNull()
+    .references(() => accounts.id),
+  name: text("name").notNull(),
   description: text("description"),
   rules: text("rules"),
 });
 
 export const sessions = sqliteTable("sessions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  date: text("date").notNull().unique(),
+  accountId: integer("account_id")
+    .notNull()
+    .references(() => accounts.id),
+  date: text("date").notNull(),
   preMarketPlan: text("pre_market_plan"),
   marketCondition: text("market_condition", {
     enum: ["trending", "choppy", "volatile"],

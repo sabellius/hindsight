@@ -1,7 +1,8 @@
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { trades } from "@/lib/db/schema";
 import { TradeListTable } from "@/components/trades/trade-list-table";
+import { getActiveAccountId } from "@/lib/auth";
 
 export default async function TradesPage({
   searchParams,
@@ -11,8 +12,9 @@ export default async function TradesPage({
   const params = await searchParams;
   const sortField = params.sort ?? "entryTime";
   const sortDir = params.dir ?? "desc";
+  const accountId = await getActiveAccountId();
 
-  const allTrades = await db.select().from(trades).orderBy(desc(trades.entryTime));
+  const allTrades = await db.select().from(trades).where(eq(trades.accountId, accountId)).orderBy(desc(trades.entryTime));
 
   return (
     <div className="flex flex-col gap-6">
