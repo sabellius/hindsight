@@ -23,11 +23,13 @@ and shadcn/ui.
 | Framework | Next.js 16 (App Router, TypeScript, Turbopack) |
 | ORM | Drizzle ORM |
 | Database | SQLite (via better-sqlite3) |
-| UI | shadcn/ui + Tailwind CSS v4 |
+| UI | shadcn/ui (Base UI, not Radix) + Tailwind CSS v4 |
 | Charts | Recharts (analytics) + Lightweight Charts (price charts) |
+| Testing | Vitest + @testing-library/react |
 | Linting | Biome 2.x |
 | Package manager | pnpm |
 | IBKR Integration | Client Portal Web API (local gateway, REST) |
+| Fonts | Inter (sans) + JetBrains Mono (monospace) |
 
 ## Commands
 
@@ -35,104 +37,149 @@ and shadcn/ui.
 - `pnpm build` — Production build
 - `pnpm lint` — Biome check
 - `pnpm format` — Biome format --write
+- `pnpm seed` — Seed DB with sample data (15 trades, 3 strategies, 2 accounts)
+- `pnpm backup` — Backup DB + screenshots to `data/backups/`
+- `pnpm test` — Run Vitest
+- `pnpm test:watch` — Run Vitest in watch mode
 
-## Project Structure (target)
+## Project Structure (current)
 
 ```
 src/
   app/
-    layout.tsx          — Root layout with sidebar
-    page.tsx            — Dashboard landing
+    layout.tsx              — Root layout, fetches accounts, passes to AppShell
+    page.tsx                — Dashboard with live DB queries + equity curve
     trades/
-      page.tsx          — Trade list
-      new/page.tsx      — Add trade form
-      [id]/page.tsx     — Trade detail/edit
+      page.tsx              — Trade list (sortable)
+      new/page.tsx          — Add trade form
+      [id]/page.tsx         — Trade detail/edit/delete
     analytics/
-      page.tsx          — Charts and metrics
+      page.tsx              — 8 chart types + date range filter
     sessions/
-      page.tsx          — Daily session journal
+      page.tsx              — Session list with daily P&L + scorecard
+      new/page.tsx          — New session form
+      [id]/page.tsx         — Session detail with auto-stats + edit
     settings/
-      page.tsx          — IBKR connection, preferences
+      page.tsx              — Accounts, IBKR status, risk params
+    api/
+      trades/route.ts       — POST new trade
+      trades/[id]/route.ts  — PATCH/DELETE trade
+      sessions/route.ts     — POST new session
+      sessions/[id]/route.ts — PATCH/DELETE session
+      accounts/switch/route.ts — POST set active account cookie
+      ibkr/status/route.ts  — GET IBKR connection status
   components/
-    ui/                 — shadcn/ui components
-    layout/             — Sidebar, header, nav
-    trades/             — Trade-specific components
-    analytics/          — Chart components
+    ui/                     — shadcn/ui components (Base UI based)
+    layout/
+      app-shell.tsx         — Client wrapper: sidebar + main content
+      sidebar.tsx           — Collapsible sidebar with nav + account switcher
+      account-switcher.tsx  — Client component dropdown for switching accounts
+    trades/
+      trade-list-table.tsx  — Client component, sortable trade table
+      trade-detail.tsx      — Client component, view/edit/delete with grades
+      trade-form.tsx        — Client component, trade entry form
+      today-trades-table.tsx — Client component, dashboard trade rows with nav
+    sessions/
+      session-form.tsx      — Client component, guided session review form
+    analytics/
+      analytics-charts.tsx  — Client component, 8 Recharts charts
+      equity-curve-chart.tsx — Client component, reusable equity curve
   lib/
     db/
-      index.ts          — Drizzle client
-      schema.ts         — All table definitions
+      index.ts              — Drizzle client singleton
+      schema.ts             — All 7 table definitions
+      computed.ts           — computeTradeMetrics() helper
+      computed.test.ts      — 6 Vitest tests for computed metrics
     ibkr/
-      client.ts         — IBKR Client Portal API wrapper
-      mapper.ts         — IBKR fields → app schema
+      client.ts             — IBKR Client Portal API wrapper (stub)
+    analytics.ts            — Data aggregation for all chart types
+    auth.ts                 — getActiveAccountId() cookie helper
     utils.ts
-  types/
+scripts/
+  seed.ts                   — Seeds 2 accounts, 3 strategies, 15 sample trades
+  backup.ts                 — Backs up DB + screenshots, retains last 30
 ```
 
 ## Database Schema
 
 ```sql
-trades: id, ticker, side, strategy_id, entry_time, exit_time,
-        entry_price, exit_price, quantity, stop_loss, target,
+accounts: id, name, type (live/paper), broker, created_at
+
+trades: id, account_id (FK), ticker, side, strategy_id (FK), entry_time,
+        exit_time, entry_price, exit_price, quantity, stop_loss, target,
         commission, profit_loss, profit_loss_percent, risk_multiple,
         conviction, process_grade, notes, ibkr_order_id, created_at
 
-strategies: id, name, description, rules
+strategies: id, account_id (FK), name, description, rules
 
-sessions: id, date, pre_market_plan, market_condition,
+sessions: id, account_id (FK), date, pre_market_plan, market_condition,
           mood, energy, daily_grade, followed_risk_rules,
           waited_for_setups, no_forced_trades, hit_daily_target,
           review_notes
 
-trade_screenshots: id, trade_id, type (entry/exit), filepath
+trade_screenshots: id, trade_id (FK), type (entry/exit), filepath
 
-tags: id, trade_id, name
+tags: id, trade_id (FK), name
 
 settings: key, value
 ```
 
+## Architecture Notes
+
+- **Server Components by default** — pages fetch data via Drizzle, pass serializable primitives to client components
+- **Client components only for interactivity** — `onClick`, `useRouter`, state management
+- **Minimize RSC boundary serialization** — only pass fields the client needs
+- **Account selection via cookie** — `hindsight-account-id` cookie, read server-side by `getActiveAccountId()`
+- **Derived fields computed in app layer** — `profitLoss`, `profitLossPercent`, `riskMultiple` computed by `computeTradeMetrics()`, not DB generated columns
+- **shadcn/ui uses Base UI** — `@base-ui/react`, not Radix. Different API (`render` prop instead of `asChild`, `delay` instead of `delayDuration`)
+- **Timestamps are milliseconds** — `entry_time` / `exit_time` stored as ms Unix timestamps (Date.getTime()), Drizzle mode is `timestamp`
+
 ## Phases
 
 ### Phase 0 — Spreadsheet Template (parallel to Phase 1)
-Create an xlsx trading journal template with columns matching the DB schema
-1:1. Sheets: Trades Log, Strategies Reference, Daily Session Notes. User starts
-journaling immediately; data imports into the app later via CSV upload.
-
 - [ ] Create xlsx template in repo at `templates/trading-journal.xlsx`
 - [ ] Columns match `trades` table schema exactly for easy import
 
 ### Phase 1 — Foundation
 - [x] Scaffold Next.js project with biome, pnpm, turbopack
-- [ ] Install and configure Drizzle ORM + better-sqlite3
-- [ ] Set up shadcn/ui + Tailwind + dark theme
-- [ ] Define DB schema in `src/lib/db/schema.ts`
-- [ ] Run initial DB migration
-- [ ] Build app shell (sidebar nav, dashboard layout, responsive)
-- [ ] IBKR Client Portal API integration (connect, fetch trades, map to schema)
-- [ ] Backup script (copy SQLite + screenshots to encrypted storage)
+- [x] Install and configure Drizzle ORM + better-sqlite3
+- [x] Set up shadcn/ui + Tailwind + dark theme
+- [x] Define DB schema in `src/lib/db/schema.ts` (7 tables with multi-account)
+- [x] Run initial DB migration
+- [x] Build app shell (collapsible sidebar, account switcher, responsive)
+- [x] Dashboard with live DB queries, metrics, equity curve
+- [x] Seed script with realistic sample data (15 trades, 3 strategies)
+- [x] Backup script (DB + screenshots, 30-day rotation)
+- [x] IBKR Client Portal API wrapper (stub — client.ts + status endpoint)
 
 ### Phase 2 — Trade Journal (CRUD)
-- [ ] Trade entry/edit/delete form
-- [ ] Fields: ticker, side, entry/exit datetime & price, quantity, stop, target,
-      commission, P&L ($, %, R-multiple), strategy tag, conviction grade (A/B/C),
+- [x] Trade entry/edit/delete form with computed metrics
+- [x] Fields: ticker, side, entry/exit datetime & price, quantity, stop, target,
+      commission, P&L ($, %, R-multiple), conviction grade (A/B/C),
       process quality, notes
-- [ ] Trade list view with sort, filter, search
+- [x] Trade list view with client-side sort
 - [ ] Screenshot upload (stored locally, referenced by path)
 - [ ] CSV/XLSX import (ingests Phase 0 spreadsheet data)
+- [ ] Search and filter on trade list
 
 ### Phase 3 — Analytics Dashboard
-- [ ] Equity curve (cumulative P&L over time — Recharts)
-- [ ] Metric cards: win rate, profit factor, avg winner/loser, R-multiple,
+- [x] Equity curve (cumulative P&L over time — Recharts)
+- [x] Metric cards: win rate, profit factor, avg winner/loser, R-multiple,
       max drawdown
-- [ ] Breakdowns: by strategy, day-of-week, time-of-day, ticker
-- [ ] Streak tracker (consecutive wins/losses)
-- [ ] Date range picker for all views
+- [x] Breakdowns: by strategy, day-of-week, time-of-day (hourly heatmap)
+- [x] Risk multiple distribution
+- [x] Streak tracker (consecutive wins/losses)
+- [x] Date range filter (7D / 30D / All)
+- [x] Drawdown chart
 
 ### Phase 4 — Review & Reflection
-- [ ] Daily session journal: pre-market plan, market conditions, mood/energy
-- [ ] Post-trade review prompts: "Followed plan?", "Would I do differently?"
+- [x] Daily session journal: pre-market plan, market conditions, mood/energy
+- [x] Process scorecard: risk rules, waited for setups, no forced trades, hit target
+- [x] Daily grade (A-F)
+- [x] Session list with daily P&L and scorecard summary
+- [x] Session detail with auto-computed daily stats
 - [ ] Weekly auto-review: aggregated stats + session notes for the week
-- [ ] Process quality tagging (separate decision quality from outcome)
+- [ ] Post-trade review prompts: "Followed plan?", "Would I do differently?"
 
 ### Phase 5 — Polish
 - [ ] Open positions tracker (live via IBKR API)
@@ -140,6 +187,16 @@ journaling immediately; data imports into the app later via CSV upload.
 - [ ] Export to CSV/PDF
 - [ ] PWA manifest (installable in browser, offline-capable)
 - [ ] Mobile-responsive layout refinements
+- [ ] Strategy lookup in analytics (currently hardcoded "Unassigned")
+- [ ] Add `strategy_id` assignment to trade form
+
+## Testing
+
+- **Framework**: Vitest + jsdom + @testing-library/react
+- **Config**: `vitest.config.ts` with `@/` path alias
+- **Setup**: `vitest.setup.ts` imports jest-dom matchers
+- **Current coverage**: `src/lib/db/computed.ts` (6 tests)
+- **Run**: `pnpm test` or `pnpm test:watch`
 
 ## IBKR Client Portal Integration Notes
 
@@ -147,11 +204,14 @@ journaling immediately; data imports into the app later via CSV upload.
 - Gateway URL: `https://localhost:5000` (default)
 - Authentication: session-based, requires periodic re-auth
 - Key endpoints:
+  - GET `/iserver/auth/status` — auth status
   - GET `/iserver/account/trades` — open trades
   - GET `/iserver/account/orders` — orders
-  - Use `/portfolio/{accountId}/positions` for position tracking
+  - GET `/portfolio/{accountId}/positions` — position tracking
 - All API calls go through Next.js API routes (server-side) to avoid CORS
   and keep credentials off the client
+- **Current status**: stub only — `src/lib/ibkr/client.ts` has wrapper functions,
+  `/api/ibkr/status` checks connection. Not yet integrated with trade sync.
 
 ## Conventions
 
@@ -161,4 +221,8 @@ journaling immediately; data imports into the app later via CSV upload.
 - pnpm for package management
 - SQLite database stored at project root as `hindsight.db`
 - Screenshots stored in `data/screenshots/` at project root
+- Backups stored in `data/backups/` at project root
 - Both `data/` and `hindsight.db` should be gitignored
+- No abbreviations in variable/column names (e.g. `profitLoss` not `pnl`)
+- Commit after each logical unit of work — never dump everything in one commit
+- LSP is enabled — skip manual `pnpm lint` / `pnpm format` calls unless asked
