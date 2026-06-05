@@ -132,7 +132,7 @@ settings: key, value
 - **Account selection via cookie** — `hindsight-account-id` cookie, read server-side by `getActiveAccountId()`
 - **Derived fields computed in app layer** — `profitLoss`, `profitLossPercent`, `riskMultiple` computed by `computeTradeMetrics()`, not DB generated columns
 - **shadcn/ui uses Base UI** — `@base-ui/react`, not Radix. Different API (`render` prop instead of `asChild`, `delay` instead of `delayDuration`)
-- **Timestamps are milliseconds** — `entry_time` / `exit_time` stored as ms Unix timestamps (Date.getTime()), Drizzle mode is `timestamp`
+- **Timestamps are milliseconds** — `entry_time` / `exit_time` stored as ms Unix timestamps (Date.getTime()), Drizzle mode is `timestamp_ms`
 
 ## Phases
 

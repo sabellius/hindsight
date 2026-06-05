@@ -5,7 +5,7 @@ export const accounts = sqliteTable("accounts", {
   name: text("name").notNull(),
   type: text("type", { enum: ["live", "paper"] }).notNull().default("live"),
   broker: text("broker"),
-  createdAt: integer("created_at", { mode: "timestamp" })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),
 });
@@ -20,8 +20,8 @@ export const trades = sqliteTable("trades", {
     .notNull()
     .default("long"),
   strategyId: integer("strategy_id").references(() => strategies.id),
-  entryTime: integer("entry_time", { mode: "timestamp" }).notNull(),
-  exitTime: integer("exit_time", { mode: "timestamp" }).notNull(),
+  entryTime: integer("entry_time", { mode: "timestamp_ms" }).notNull(),
+  exitTime: integer("exit_time", { mode: "timestamp_ms" }).notNull(),
   entryPrice: real("entry_price").notNull(),
   exitPrice: real("exit_price").notNull(),
   quantity: integer("quantity").notNull(),
@@ -35,7 +35,7 @@ export const trades = sqliteTable("trades", {
   processGrade: text("process_grade", { enum: ["A", "B", "C"] }),
   notes: text("notes"),
   ibkrOrderId: text("ibkr_order_id"),
-  createdAt: integer("created_at", { mode: "timestamp" })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),
 });
