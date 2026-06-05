@@ -43,7 +43,7 @@ const columns: { key: string; label: string; className?: string }[] = [
   { key: "quantity", label: "Qty", className: "text-right" },
   { key: "profitLoss", label: "Profit/Loss", className: "text-right" },
   { key: "riskMultiple", label: "Risk", className: "text-right" },
-  { key: "entryTime", label: "Time", className: "text-right" },
+  { key: "entryTime", label: "Date", className: "text-right" },
 ];
 
 export function TradeListTable({ data, sortField, sortDir }: TradeListTableProps) {
@@ -137,6 +137,10 @@ export function TradeListTable({ data, sortField, sortDir }: TradeListTableProps
                   {trade.riskMultiple != null ? `${trade.riskMultiple}R` : "—"}
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">
+                  {trade.entryTime.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  })}{" "}
                   {trade.entryTime.toLocaleTimeString("en-US", {
                     hour: "2-digit",
                     minute: "2-digit",
