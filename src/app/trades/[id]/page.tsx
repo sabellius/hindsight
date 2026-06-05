@@ -18,5 +18,11 @@ export default async function TradeDetailPage({
 
   if (!trade) notFound();
 
-  return <TradeDetail trade={trade} />;
+  const serialized = {
+    ...trade,
+    entryTime: trade.entryTime.getTime(),
+    exitTime: trade.exitTime.getTime(),
+  };
+
+  return <TradeDetail trade={serialized} />;
 }

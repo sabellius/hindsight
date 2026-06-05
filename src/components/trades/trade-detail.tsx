@@ -14,13 +14,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { TradeChartLoader } from "./trade-chart-loader";
 
 type Trade = {
   id: number;
   ticker: string;
   side: string;
-  entryTime: Date;
-  exitTime: Date;
+  entryTime: number;
+  exitTime: number;
   entryPrice: number;
   exitPrice: number;
   quantity: number;
@@ -87,9 +88,8 @@ export function TradeDetail({ trade }: { trade: Trade }) {
   const isProfit = trade.profitLoss != null && trade.profitLoss >= 0;
   const profitLossColor = isProfit ? "text-profit" : "text-loss";
 
-  const durationMs =
-    new Date(trade.exitTime).getTime() - new Date(trade.entryTime).getTime();
-  const durationMin = Math.round(durationMs / 60000);
+  const durationMilliseconds = trade.exitTime - trade.entryTime;
+  const durationMinutes = Math.round(durationMilliseconds / 60000);
 
   async function handleDelete() {
     if (!confirm("Delete this trade?")) return;
@@ -206,7 +206,7 @@ export function TradeDetail({ trade }: { trade: Trade }) {
           minute: "2-digit",
           hour12: false,
         })}{" "}
-        &middot; {durationMin}min
+        &middot; {durationMinutes}min
       </div>
 
       <div className="grid grid-cols-3 gap-3">
@@ -247,13 +247,19 @@ export function TradeDetail({ trade }: { trade: Trade }) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex h-20 items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">
-          Entry Screenshot
+      <div>
+        <div className="mb-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+          Price Chart
         </div>
-        <div className="flex h-20 items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">
-          Exit Screenshot
-        </div>
+        <TradeChartLoader
+          ticker={trade.ticker}
+          entryTime={trade.entryTime}
+          exitTime={trade.exitTime}
+          entryPrice={trade.entryPrice}
+          exitPrice={trade.exitPrice}
+          stopLoss={trade.stopLoss}
+          target={trade.target}
+        />
       </div>
 
       <div className="flex gap-3">
