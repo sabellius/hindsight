@@ -17,6 +17,7 @@ export default defineConfig({
         "src/lib/db/schema.ts",
         "src/lib/constants.ts",
         "src/lib/ibkr/client.ts",
+        "src/lib/auth.ts",
       ],
       thresholds: {
         statements: 90,
