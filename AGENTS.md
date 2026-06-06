@@ -25,7 +25,7 @@ and shadcn/ui.
 | Database | SQLite (via better-sqlite3) |
 | UI | shadcn/ui (Base UI, not Radix) + Tailwind CSS v4 |
 | Charts | Recharts (analytics) + Lightweight Charts (price charts) |
-| Testing | Vitest + @testing-library/react |
+| Testing | Vitest + @testing-library/react + @vitest/coverage-v8 |
 | Linting | Biome 2.x |
 | Package manager | pnpm |
 | IBKR Integration | Client Portal Web API (local gateway, REST) |
@@ -38,9 +38,10 @@ and shadcn/ui.
 - `pnpm lint` — Biome check
 - `pnpm format` — Biome format --write
 - `pnpm seed` — Seed DB with sample data (15 trades, 3 strategies, 2 accounts)
-- `pnpm backup` — Backup DB + screenshots to `data/backups/`
+- `pnpm backup` — Backup DB to `data/backups/`
 - `pnpm test` — Run Vitest
 - `pnpm test:watch` — Run Vitest in watch mode
+- `pnpm test:coverage` — Run Vitest with v8 coverage report
 
 ## Project Structure (current)
 
@@ -87,17 +88,18 @@ src/
   lib/
     db/
       index.ts              — Drizzle client singleton
-      schema.ts             — All 7 table definitions
-      computed.ts           — computeTradeMetrics() helper
-      computed.test.ts      — 6 Vitest tests for computed metrics
+      schema.ts             — All 8 table definitions (incl. executions)
+      computed.ts           — computeTradeMetrics() + computeTradeMetricsFromExecutions()
+      computed.test.ts      — 17 Vitest tests for computed metrics
     ibkr/
       client.ts             — IBKR Client Portal API wrapper (stub)
     analytics.ts            — Data aggregation for all chart types
     auth.ts                 — getActiveAccountId() cookie helper
+    constants.ts            — Alpaca/Yahoo API URLs and user agent
+    time.ts                 — UTC timestamp conversion helpers
     utils.ts
 scripts/
-  seed.ts                   — Seeds 2 accounts, 3 strategies, 15 sample trades
-  backup.ts                 — Backs up DB + screenshots, retains last 30
+  seed.ts                   — Seeds 2 accounts, 3 strategies, 15 trades + 30 executions
 ```
 
 ## Database Schema
@@ -110,14 +112,15 @@ trades: id, account_id (FK), ticker, side, strategy_id (FK), entry_time,
         commission, profit_loss, profit_loss_percent, risk_multiple,
         conviction, process_grade, notes, ibkr_order_id, created_at
 
+executions: id, trade_id (FK, cascade delete), side (buy/sell), price,
+            quantity, timestamp, commission, created_at
+
 strategies: id, account_id (FK), name, description, rules
 
 sessions: id, account_id (FK), date, pre_market_plan, market_condition,
           mood, energy, daily_grade, followed_risk_rules,
           waited_for_setups, no_forced_trades, hit_daily_target,
           review_notes
-
-trade_screenshots: id, trade_id (FK), type (entry/exit), filepath
 
 tags: id, trade_id (FK), name
 
@@ -136,67 +139,58 @@ settings: key, value
 
 ## Phases
 
-### Phase 0 — Spreadsheet Template (parallel to Phase 1)
-- [ ] Create xlsx template in repo at `templates/trading-journal.xlsx`
-- [ ] Columns match `trades` table schema exactly for easy import
+See `docs/specs/ROADMAP.md` for the full prioritized roadmap with competitive analysis.
 
-### Phase 1 — Foundation
-- [x] Scaffold Next.js project with biome, pnpm, turbopack
-- [x] Install and configure Drizzle ORM + better-sqlite3
-- [x] Set up shadcn/ui + Tailwind + dark theme
-- [x] Define DB schema in `src/lib/db/schema.ts` (7 tables with multi-account)
-- [x] Run initial DB migration
-- [x] Build app shell (collapsible sidebar, account switcher, responsive)
-- [x] Dashboard with live DB queries, metrics, equity curve
-- [x] Seed script with realistic sample data (15 trades, 3 strategies)
-- [x] Backup script (DB + screenshots, 30-day rotation)
-- [x] IBKR Client Portal API wrapper (stub — client.ts + status endpoint)
+### Completed
 
-### Phase 2 — Trade Journal (CRUD)
-- [x] Trade entry/edit/delete form with computed metrics
-- [x] Fields: ticker, side, entry/exit datetime & price, quantity, stop, target,
-      commission, P&L ($, %, R-multiple), conviction grade (A/B/C),
-      process quality, notes
-- [x] Trade list view with client-side sort
-- [ ] Screenshot upload (stored locally, referenced by path)
-- [ ] CSV/XLSX import (ingests Phase 0 spreadsheet data)
-- [ ] Search and filter on trade list
+- [x] Phase 1 — Foundation (scaffold, DB, app shell, seed, backup, IBKR stub)
+- [x] Phase 2 — Trade Journal CRUD (entry/edit/delete, executions model, computed metrics)
+- [x] Phase 3 — Analytics Dashboard (equity curve, 8 chart types, date range filter)
+- [x] Phase 4 — Sessions (daily journal, process scorecard, daily grade)
+- [x] Executions-based trade model (scaling in/out, recomputed flat fields)
+- [x] Test suite (58 tests, 100% branch coverage, 90% per-file thresholds)
 
-### Phase 3 — Analytics Dashboard
-- [x] Equity curve (cumulative P&L over time — Recharts)
-- [x] Metric cards: win rate, profit factor, avg winner/loser, R-multiple,
-      max drawdown
-- [x] Breakdowns: by strategy, day-of-week, time-of-day (hourly heatmap)
-- [x] Risk multiple distribution
-- [x] Streak tracker (consecutive wins/losses)
-- [x] Date range filter (7D / 30D / All)
-- [x] Drawdown chart
+### Phase 6 — Strategy & Tag System
 
-### Phase 4 — Review & Reflection
-- [x] Daily session journal: pre-market plan, market conditions, mood/energy
-- [x] Process scorecard: risk rules, waited for setups, no forced trades, hit target
-- [x] Daily grade (A-F)
-- [x] Session list with daily P&L and scorecard summary
-- [x] Session detail with auto-computed daily stats
-- [ ] Weekly auto-review: aggregated stats + session notes for the week
-- [ ] Post-trade review prompts: "Followed plan?", "Would I do differently?"
+- [ ] Strategy assignment in trade form + analytics lookup (replace "Unassigned")
+- [ ] Custom tags on trades with P&L breakdown by tag
+- [ ] Trade search and filtering (ticker, date, strategy, tag, P&L range)
 
-### Phase 5 — Polish
+### Phase 7 — Discipline & Behavior Tracking
+
+- [ ] Mistake/behavior tags per trade with P&L impact analysis
+- [ ] Efficiency / discipline score (per-trade rule adherence)
+- [ ] Exit analysis (did price hit target/stop after exit?)
+
+### Phase 8 — Reports & Review Automation
+
+- [ ] Weekly auto-review (aggregated stats + session notes)
+- [ ] Monthly performance report (month-over-month trends)
+- [ ] Tiltmeter (discipline streaks overlaid on equity curve)
+
+### Phase 9 — Import, Export & Integration
+
+- [ ] CSV export
+- [ ] IBKR auto-import (fill grouping, dedup)
 - [ ] Open positions tracker (live via IBKR API)
-- [ ] Portfolio allocation / sector exposure
-- [ ] Export to CSV/PDF
-- [ ] PWA manifest (installable in browser, offline-capable)
+
+### Phase 10 — Polish
+
 - [ ] Mobile-responsive layout refinements
-- [ ] Strategy lookup in analytics (currently hardcoded "Unassigned")
-- [ ] Add `strategy_id` assignment to trade form
+- [ ] PWA manifest
+- [ ] Strategy CRUD management page
+- [ ] Trading diary / notebook (passed-on trades)
+- [ ] Onboarding flow
 
 ## Testing
 
-- **Framework**: Vitest + jsdom + @testing-library/react
-- **Config**: `vitest.config.ts` with `@/` path alias
+- **Framework**: Vitest + jsdom + @testing-library/react + @testing-library/user-event
+- **Coverage provider**: @vitest/coverage-v8
+- **Config**: `vitest.config.ts` with `@/` path alias, 90% per-file thresholds
 - **Setup**: `vitest.setup.ts` imports jest-dom matchers
-- **Current coverage**: `src/lib/db/computed.ts` (6 tests)
-- **Run**: `pnpm test` or `pnpm test:watch`
+- **Current coverage**: 58 tests, 100% branch coverage across `computed.ts`, `analytics.ts`, `time.ts`, `utils.ts`
+- **Commands**: `pnpm test` | `pnpm test:watch` | `pnpm test:coverage`
+- **Rule**: Every new function, API route, and UI component must have tests before merging. Coverage thresholds must pass (`pnpm test:coverage`).
 
 ## IBKR Client Portal Integration Notes
 
@@ -220,8 +214,6 @@ settings: key, value
 - Biome for linting and formatting (not ESLint)
 - pnpm for package management
 - SQLite database stored at project root as `hindsight.db`
-- Screenshots stored in `data/screenshots/` at project root
-- Backups stored in `data/backups/` at project root
 - Both `data/` and `hindsight.db` should be gitignored
 - No abbreviations in variable/column names (e.g. `profitLoss` not `pnl`)
 - Commit after each logical unit of work — never dump everything in one commit
