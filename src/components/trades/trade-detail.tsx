@@ -80,10 +80,29 @@ function GradeBadge({ grade, label }: { grade: string | null; label: string }) {
   );
 }
 
-export function TradeDetail({ trade }: { trade: Trade }) {
+type Execution = {
+  id: number;
+  tradeId: number;
+  side: string;
+  price: number;
+  quantity: number;
+  timestamp: number;
+  commission: number;
+  createdAt: number;
+};
+
+export function TradeDetail({
+  trade,
+  executions: initialExecutions,
+}: {
+  trade: Trade;
+  executions: Execution[];
+}) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [pending, setPending] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [addPending, setAddPending] = useState(false);
 
   const isProfit = trade.profitLoss != null && trade.profitLoss >= 0;
   const profitLossColor = isProfit ? "text-profit" : "text-loss";
@@ -114,20 +133,6 @@ export function TradeDetail({ trade }: { trade: Trade }) {
   if (editing) {
     return (
       <form action={handleSave} className="flex flex-col gap-6 max-w-2xl">
-        <div className="grid grid-cols-3 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label>Entry Price</Label>
-            <Input name="entryPrice" type="number" step="0.01" defaultValue={trade.entryPrice} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label>Exit Price</Label>
-            <Input name="exitPrice" type="number" step="0.01" defaultValue={trade.exitPrice} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label>Quantity</Label>
-            <Input name="quantity" type="number" defaultValue={trade.quantity} />
-          </div>
-        </div>
         <div className="grid grid-cols-4 gap-4">
           <div className="flex flex-col gap-1.5">
             <Label>Stop Loss</Label>
@@ -138,12 +143,19 @@ export function TradeDetail({ trade }: { trade: Trade }) {
             <Input name="target" type="number" step="0.01" defaultValue={trade.target ?? ""} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label>Commission</Label>
-            <Input name="commission" type="number" step="0.01" defaultValue={trade.commission} />
-          </div>
-          <div className="flex flex-col gap-1.5">
             <Label>Conviction</Label>
             <Select name="conviction" defaultValue={trade.conviction ?? undefined}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="A">A</SelectItem>
+                <SelectItem value="B">B</SelectItem>
+                <SelectItem value="C">C</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>Process Grade</Label>
+            <Select name="processGrade" defaultValue={trade.processGrade ?? undefined}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="A">A</SelectItem>
@@ -246,6 +258,112 @@ export function TradeDetail({ trade }: { trade: Trade }) {
           <p className="text-xs leading-relaxed text-muted-foreground">{trade.notes}</p>
         </div>
       )}
+
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            Executions ({initialExecutions.length})
+          </span>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="h-6 text-xs"
+            onClick={() => setShowAddForm(!showAddForm)}
+          >
+            {showAddForm ? "Cancel" : "Add Execution"}
+          </Button>
+        </div>
+
+        {showAddForm && (
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setAddPending(true);
+              const form = e.currentTarget;
+              const formData = new FormData(form);
+              const res = await fetch(`/api/trades/${trade.id}/executions`, {
+                method: "POST",
+                body: formData,
+              });
+              if (res.ok) {
+                setShowAddForm(false);
+                router.refresh();
+              }
+              setAddPending(false);
+            }}
+            className="mb-3 grid grid-cols-5 gap-2 rounded-lg border border-border bg-secondary p-2"
+          >
+            <Select name="side" required defaultValue="buy">
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="buy">Buy</SelectItem>
+                <SelectItem value="sell">Sell</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input name="price" type="number" step="0.01" required placeholder="Price" className="h-8 text-xs" />
+            <Input name="quantity" type="number" required placeholder="Qty" className="h-8 text-xs" />
+            <Input name="timestamp" type="datetime-local" required className="h-8 text-xs" />
+            <div className="flex gap-1">
+              <Input name="commission" type="number" step="0.01" placeholder="Comm." defaultValue="0" className="h-8 text-xs" />
+              <Button type="submit" size="sm" className="h-8 text-xs px-2" disabled={addPending}>
+                {addPending ? "..." : "Add"}
+              </Button>
+            </div>
+          </form>
+        )}
+
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-border text-muted-foreground">
+              <th className="py-1.5 text-left font-medium">Time</th>
+              <th className="py-1.5 text-left font-medium">Side</th>
+              <th className="py-1.5 text-right font-medium">Price</th>
+              <th className="py-1.5 text-right font-medium">Qty</th>
+              <th className="py-1.5 text-right font-medium">Comm.</th>
+              <th className="py-1.5 text-right font-medium" />
+            </tr>
+          </thead>
+          <tbody>
+            {initialExecutions.map((exec) => (
+              <tr key={exec.id} className="border-b border-border/50">
+                <td className="py-1.5">
+                  {new Date(exec.timestamp).toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  })}
+                </td>
+                <td className="py-1.5">
+                  <span className={exec.side === "buy" ? "text-profit" : "text-loss"}>
+                    {exec.side === "buy" ? "Buy" : "Sell"}
+                  </span>
+                </td>
+                <td className="py-1.5 text-right">${exec.price.toFixed(2)}</td>
+                <td className="py-1.5 text-right">{exec.quantity}</td>
+                <td className="py-1.5 text-right">${exec.commission.toFixed(2)}</td>
+                <td className="py-1.5 text-right">
+                  <button
+                    type="button"
+                    className="text-muted-foreground hover:text-loss text-[10px]"
+                    onClick={async () => {
+                      if (!confirm("Delete this execution?")) return;
+                      const formData = new FormData();
+                      formData.set("executionId", String(exec.id));
+                      await fetch(`/api/trades/${trade.id}/executions`, {
+                        method: "DELETE",
+                        body: formData,
+                      });
+                      router.refresh();
+                    }}
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <div>
         <div className="mb-2 text-[10px] uppercase tracking-wide text-muted-foreground">

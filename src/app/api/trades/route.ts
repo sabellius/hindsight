@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { trades } from "@/lib/db/schema";
+import { trades, executions } from "@/lib/db/schema";
 import { computeTradeMetrics } from "@/lib/db/computed";
 
 export async function POST(request: NextRequest) {
@@ -13,6 +13,8 @@ export async function POST(request: NextRequest) {
   const stopLoss = formData.get("stopLoss")
     ? Number(formData.get("stopLoss"))
     : null;
+  const entryTime = new Date(formData.get("entryTime") as string);
+  const exitTime = new Date(formData.get("exitTime") as string);
 
   const { profitLoss, profitLossPercent, riskMultiple } =
     computeTradeMetrics({
@@ -29,8 +31,8 @@ export async function POST(request: NextRequest) {
       accountId: Number(formData.get("accountId")),
       ticker: formData.get("ticker") as string,
       side: "long",
-      entryTime: new Date(formData.get("entryTime") as string),
-      exitTime: new Date(formData.get("exitTime") as string),
+      entryTime,
+      exitTime,
       entryPrice,
       exitPrice,
       quantity,
@@ -48,5 +50,26 @@ export async function POST(request: NextRequest) {
     })
     .returning({ id: trades.id });
 
-  return NextResponse.json({ id: result[0].id });
+  const tradeId = result[0].id;
+
+  await db.insert(executions).values([
+    {
+      tradeId,
+      side: "buy",
+      price: entryPrice,
+      quantity,
+      timestamp: entryTime,
+      commission: 0,
+    },
+    {
+      tradeId,
+      side: "sell",
+      price: exitPrice,
+      quantity,
+      timestamp: exitTime,
+      commission,
+    },
+  ]);
+
+  return NextResponse.json({ id: tradeId });
 }

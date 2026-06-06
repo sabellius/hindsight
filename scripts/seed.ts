@@ -154,13 +154,21 @@ if (tradeCount.count === 0) {
     };
   }
 
-  const insertMany = db.transaction((trades: unknown[][]) => {
-    for (const trade of trades) {
-      insertTrade.run(...trade);
+  const insertExecution = db.prepare(
+    `INSERT INTO executions (trade_id, side, price, quantity, timestamp, commission, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  );
+
+  const insertMany = db.transaction((rows: { trade: unknown[]; executions: unknown[][] }[]) => {
+    for (const row of rows) {
+      const tradeId = insertTrade.run(...row.trade).lastInsertRowid;
+      for (const exec of row.executions) {
+        insertExecution.run(tradeId, ...exec);
+      }
     }
   });
 
-  const tradeRows: unknown[][] = [];
+  const seedRows: { trade: unknown[]; executions: unknown[][] }[] = [];
 
   for (const trade of staticTrades) {
     const marketHourUtc = trade.entryHour + 4;
@@ -174,27 +182,33 @@ if (tradeCount.count === 0) {
     const riskMultiple = risk > 0 ? profitLoss / risk : 0;
     const metadata = deriveMetadata(profitLoss, riskMultiple, trade.strategyId);
 
-    tradeRows.push([
-      1,
-      trade.ticker,
-      "long",
-      trade.strategyId,
-      entryMs,
-      exitMs,
-      trade.entryPrice,
-      trade.exitPrice,
-      trade.quantity,
-      trade.stopLoss,
-      trade.target,
-      trade.commission,
-      Math.round(profitLoss * 100) / 100,
-      Math.round(profitLossPercent * 100) / 100,
-      Math.round(riskMultiple * 100) / 100,
-      metadata.conviction,
-      metadata.processGrade,
-      metadata.notes,
-      entryMs,
-    ]);
+    seedRows.push({
+      trade: [
+        1,
+        trade.ticker,
+        "long",
+        trade.strategyId,
+        entryMs,
+        exitMs,
+        trade.entryPrice,
+        trade.exitPrice,
+        trade.quantity,
+        trade.stopLoss,
+        trade.target,
+        trade.commission,
+        Math.round(profitLoss * 100) / 100,
+        Math.round(profitLossPercent * 100) / 100,
+        Math.round(riskMultiple * 100) / 100,
+        metadata.conviction,
+        metadata.processGrade,
+        metadata.notes,
+        entryMs,
+      ],
+      executions: [
+        ["buy", trade.entryPrice, trade.quantity, entryMs, 0, Date.now()],
+        ["sell", trade.exitPrice, trade.quantity, exitMs, trade.commission, Date.now()],
+      ],
+    });
 
     const isWin = profitLoss >= 0;
     console.log(
@@ -202,9 +216,9 @@ if (tradeCount.count === 0) {
     );
   }
 
-  insertMany(tradeRows);
+  insertMany(seedRows);
   console.log(
-    `Seeded ${tradeRows.length} trades + 3 strategies`,
+    `Seeded ${seedRows.length} trades + ${seedRows.length * 2} executions + 3 strategies`,
   );
   db.close();
 } else {

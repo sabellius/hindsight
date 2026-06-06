@@ -70,6 +70,21 @@ export const sessions = sqliteTable("sessions", {
   reviewNotes: text("review_notes"),
 });
 
+export const executions = sqliteTable("executions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  tradeId: integer("trade_id")
+    .notNull()
+    .references(() => trades.id, { onDelete: "cascade" }),
+  side: text("side", { enum: ["buy", "sell"] }).notNull(),
+  price: real("price").notNull(),
+  quantity: integer("quantity").notNull(),
+  timestamp: integer("timestamp", { mode: "timestamp_ms" }).notNull(),
+  commission: real("commission").notNull().default(0),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
 export const tradeScreenshots = sqliteTable("trade_screenshots", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   tradeId: integer("trade_id")

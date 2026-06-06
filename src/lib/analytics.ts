@@ -58,7 +58,7 @@ export async function getAnalyticsData(days: number, accountId: number) {
   };
 }
 
-function buildEquityCurve(
+export function buildEquityCurve(
   tradeList: (typeof trades.$inferSelect)[],
 ) {
   let cumulative = 0;

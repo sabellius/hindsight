@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeTradeMetrics } from "@/lib/db/computed";
+import { computeTradeMetrics, computeTradeMetricsFromExecutions } from "@/lib/db/computed";
 
 describe("computeTradeMetrics", () => {
   it("computes profit for a winning long trade", () => {
@@ -86,5 +86,105 @@ describe("computeTradeMetrics", () => {
     });
 
     expect(result.profitLossPercent).toBe(0.99);
+  });
+});
+
+describe("computeTradeMetricsFromExecutions", () => {
+  it("computes metrics for simple buy + sell", () => {
+    const result = computeTradeMetricsFromExecutions(
+      [
+        { side: "buy", price: 100, quantity: 50, commission: 0.5, timestamp: 1000 },
+        { side: "sell", price: 105, quantity: 50, commission: 0.5, timestamp: 2000 },
+      ],
+      98,
+    );
+
+    expect(result.entryPrice).toBe(100);
+    expect(result.exitPrice).toBe(105);
+    expect(result.quantity).toBe(50);
+    expect(result.commission).toBe(1);
+    expect(result.entryTime).toBe(1000);
+    expect(result.exitTime).toBe(2000);
+    expect(result.profitLoss).toBe(249);
+    expect(result.profitLossPercent).toBe(5);
+    expect(result.riskMultiple).toBe(2.5);
+  });
+
+  it("computes metrics for multiple buys (scale in)", () => {
+    const result = computeTradeMetricsFromExecutions(
+      [
+        { side: "buy", price: 100, quantity: 100, commission: 1, timestamp: 1000 },
+        { side: "buy", price: 102, quantity: 50, commission: 1, timestamp: 1500 },
+        { side: "sell", price: 110, quantity: 150, commission: 1, timestamp: 3000 },
+      ],
+      98,
+    );
+
+    expect(result.entryPrice).toBe(100.66666666666667);
+    expect(result.exitPrice).toBe(110);
+    expect(result.quantity).toBe(150);
+    expect(result.commission).toBe(3);
+    expect(result.profitLoss).toBeCloseTo(1400 - 3);
+  });
+
+  it("computes metrics for multiple sells (partial exits)", () => {
+    const result = computeTradeMetricsFromExecutions(
+      [
+        { side: "buy", price: 50, quantity: 100, commission: 1, timestamp: 1000 },
+        { side: "sell", price: 52, quantity: 60, commission: 1, timestamp: 2000 },
+        { side: "sell", price: 55, quantity: 40, commission: 1, timestamp: 3000 },
+      ],
+      48,
+    );
+
+    expect(result.exitPrice).toBe((52 * 60 + 55 * 40) / 100);
+    expect(result.quantity).toBe(100);
+    expect(result.commission).toBe(3);
+    expect(result.exitTime).toBe(3000);
+  });
+
+  it("computes metrics for multiple buys + multiple sells", () => {
+    const result = computeTradeMetricsFromExecutions(
+      [
+        { side: "buy", price: 131.20, quantity: 100, commission: 1, timestamp: 1000 },
+        { side: "buy", price: 132.40, quantity: 50, commission: 1, timestamp: 1500 },
+        { side: "sell", price: 135.00, quantity: 100, commission: 1, timestamp: 3000 },
+        { side: "sell", price: 135.80, quantity: 50, commission: 1, timestamp: 3100 },
+      ],
+      130,
+    );
+
+    expect(result.entryPrice).toBeCloseTo(131.6);
+    expect(result.exitPrice).toBeCloseTo(135.27);
+    expect(result.quantity).toBe(150);
+    expect(result.commission).toBe(4);
+    expect(result.entryTime).toBe(1000);
+    expect(result.exitTime).toBe(3100);
+  });
+
+  it("returns null riskMultiple when no stopLoss", () => {
+    const result = computeTradeMetricsFromExecutions(
+      [
+        { side: "buy", price: 100, quantity: 10, commission: 0, timestamp: 1000 },
+        { side: "sell", price: 105, quantity: 10, commission: 0, timestamp: 2000 },
+      ],
+      null,
+    );
+
+    expect(result.riskMultiple).toBeNull();
+    expect(result.profitLoss).toBe(50);
+  });
+
+  it("totals commission across all executions", () => {
+    const result = computeTradeMetricsFromExecutions(
+      [
+        { side: "buy", price: 50, quantity: 100, commission: 2, timestamp: 1000 },
+        { side: "sell", price: 52, quantity: 100, commission: 3, timestamp: 2000 },
+      ],
+      49,
+    );
+
+    expect(result.commission).toBe(5);
+    expect(result.profitLoss).toBe(195);
   });
 });
