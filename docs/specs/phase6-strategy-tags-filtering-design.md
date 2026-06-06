@@ -52,9 +52,11 @@ table, `strategyId` FK on trades, and `tags` table already support everything ne
 
 ### Analytics (`lib/analytics.ts`)
 
-- Update `groupByStrategy()` to accept the full trade list with strategy names
-  already joined (passed from the server query). Instead of hardcoding "Unassigned",
-  use `trade.strategyName ?? "Unassigned"` as the grouping key
+- Update `groupByStrategy()` input type to include `strategyName: string | null`
+  on each trade. Instead of hardcoding "Unassigned", use
+  `trade.strategyName ?? "Unassigned"` as the grouping key.
+  The function signature changes from `(typeof trades.$inferSelect)[]`
+  to an extended type that includes the joined field.
 - The `getAnalyticsData()` function needs to join strategies in its query too
 
 ### Seed Script
@@ -83,8 +85,8 @@ New client component:
 ### Trade List Table
 
 - Add `tags: string[]` to the `Trade` type
-- Show tags as small pills in the "Strategy" column or as a new column
-- Keep compact — just the tag names, no click actions on the list page
+- Show tags as small pills in a dedicated "Tags" column after "Date"
+- Keep compact — just the tag names as small pills, no click actions on the list page
 
 ### API Routes
 
