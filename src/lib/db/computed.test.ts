@@ -87,6 +87,18 @@ describe("computeTradeMetrics", () => {
 
     expect(result.profitLossPercent).toBe(0.99);
   });
+
+  it("returns null riskMultiple when stopLoss equals entryPrice", () => {
+    const result = computeTradeMetrics({
+      entryPrice: 100,
+      exitPrice: 105,
+      quantity: 10,
+      commission: 0,
+      stopLoss: 100,
+    });
+
+    expect(result.riskMultiple).toBeNull();
+  });
 });
 
 describe("computeTradeMetricsFromExecutions", () => {
@@ -186,5 +198,47 @@ describe("computeTradeMetricsFromExecutions", () => {
 
     expect(result.commission).toBe(5);
     expect(result.profitLoss).toBe(195);
+  });
+
+  it("returns null riskMultiple when stopLoss equals entryPrice", () => {
+    const result = computeTradeMetricsFromExecutions(
+      [
+        { side: "buy", price: 100, quantity: 10, commission: 0, timestamp: 1000 },
+        { side: "sell", price: 105, quantity: 10, commission: 0, timestamp: 2000 },
+      ],
+      100,
+    );
+
+    expect(result.riskMultiple).toBeNull();
+  });
+
+  it("handles buys only (open position)", () => {
+    const result = computeTradeMetricsFromExecutions(
+      [
+        { side: "buy", price: 100, quantity: 50, commission: 1, timestamp: 1000 },
+        { side: "buy", price: 102, quantity: 25, commission: 1, timestamp: 1500 },
+      ],
+      98,
+    );
+
+    expect(result.entryPrice).toBeCloseTo(100.67);
+    expect(result.exitPrice).toBe(0);
+    expect(result.quantity).toBe(75);
+    expect(result.entryTime).toBe(1000);
+    expect(result.exitTime).toBe(0);
+  });
+
+  it("handles sells only (closing leftover)", () => {
+    const result = computeTradeMetricsFromExecutions(
+      [
+        { side: "sell", price: 105, quantity: 50, commission: 1, timestamp: 2000 },
+      ],
+      null,
+    );
+
+    expect(result.entryPrice).toBe(0);
+    expect(result.exitPrice).toBe(105);
+    expect(result.quantity).toBe(0);
+    expect(result.exitTime).toBe(2000);
   });
 });
