@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { TWELVE_DATA_BASE_URL } from "@/lib/constants";
-import {
-  millisecondsToSeconds,
-  formatUtcDateString,
-  parseUtcDateTimeToSeconds,
-} from "@/lib/time";
+import { ALPACA_DATA_BASE_URL } from "@/lib/constants";
+import { millisecondsToSeconds } from "@/lib/time";
 
-type TwelveDataValue = {
-  datetime: string;
-  open: string;
-  high: string;
-  low: string;
-  close: string;
+type AlpacaBar = {
+  t: string;
+  o: number;
+  h: number;
+  l: number;
+  c: number;
+  v: number;
+  n: number;
+  vw: number;
+};
+
+const INTERVAL_MAP: Record<string, string> = {
+  "1min": "1Min",
+  "5min": "5Min",
+  "15min": "15Min",
 };
 
 export async function GET(
@@ -22,7 +27,7 @@ export async function GET(
   const { searchParams } = new URL(request.url);
   const entryTime = searchParams.get("entry_time");
   const exitTime = searchParams.get("exit_time");
-  const interval = searchParams.get("interval") || "5min";
+  const rawInterval = searchParams.get("interval") || "5min";
 
   if (!entryTime || !exitTime) {
     return NextResponse.json(
@@ -31,47 +36,49 @@ export async function GET(
     );
   }
 
-  const apiKey = process.env.TWELVE_DATA_API_KEY;
-  if (!apiKey) {
+  const apiKeyId = process.env.ALPACA_API_KEY;
+  const apiSecretKey = process.env.ALPACA_SECRET_KEY;
+  if (!apiKeyId || !apiSecretKey) {
     return NextResponse.json(
-      { error: "TWELVE_DATA_API_KEY not configured" },
+      { error: "ALPACA_API_KEY and ALPACA_SECRET_KEY not configured" },
       { status: 500 },
     );
   }
 
-  const entrySeconds = millisecondsToSeconds(Number(entryTime));
-  const exitSeconds = millisecondsToSeconds(Number(exitTime));
-  const paddingSeconds = 2 * 60 * 60;
-  const startDate = formatUtcDateString(entrySeconds - paddingSeconds);
-  const endDate = formatUtcDateString(exitSeconds + paddingSeconds);
+  const timeframe = INTERVAL_MAP[rawInterval] || "5Min";
 
-  const url = `${TWELVE_DATA_BASE_URL}/time_series?symbol=${ticker}&interval=${interval}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}&order=asc&timezone=UTC&apikey=${apiKey}`;
+  const paddingMs = 2 * 60 * 60 * 1000;
+  const start = new Date(Number(entryTime) - paddingMs).toISOString();
+  const end = new Date(Number(exitTime) + paddingMs).toISOString();
+
+  const url = `${ALPACA_DATA_BASE_URL}/v2/stocks/${ticker}/bars?timeframe=${timeframe}&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&feed=iex&sort=asc`;
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        "APCA-API-KEY-ID": apiKeyId,
+        "APCA-API-SECRET-KEY": apiSecretKey,
+      },
+    });
 
     if (!response.ok) {
+      const body = await response.text();
       return NextResponse.json(
-        { error: `Twelve Data returned ${response.status}` },
+        { error: `Alpaca returned ${response.status}: ${body}` },
         { status: response.status },
       );
     }
 
     const data = await response.json();
+    const bars: AlpacaBar[] = data.bars ?? [];
 
-    if (data.status === "error") {
-      return NextResponse.json({ candles: [], error: data.message });
-    }
-
-    const values: TwelveDataValue[] = data.values ?? [];
-
-    const candles = values
-      .map((value) => ({
-        time: parseUtcDateTimeToSeconds(value.datetime),
-        open: Number(value.open),
-        high: Number(value.high),
-        low: Number(value.low),
-        close: Number(value.close),
+    const candles = bars
+      .map((bar) => ({
+        time: millisecondsToSeconds(new Date(bar.t).getTime()),
+        open: bar.o,
+        high: bar.h,
+        low: bar.l,
+        close: bar.c,
       }))
       .filter(
         (candle) =>
