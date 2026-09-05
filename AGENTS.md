@@ -36,6 +36,8 @@ and shadcn/ui.
 - `pnpm dev` — Start dev server (Turbopack)
 - `pnpm build` — Production build
 - `pnpm lint` — Biome check
+- `pnpm lint:fix` — Biome check --write
+- `pnpm typecheck` — TypeScript check (tsc --noEmit)
 - `pnpm format` — Biome format --write
 - `pnpm seed` — Seed DB with sample data (15 trades, 3 strategies, 2 accounts)
 - `pnpm backup` — Backup DB to `data/backups/`
@@ -137,50 +139,32 @@ settings: key, value
 - **shadcn/ui uses Base UI** — `@base-ui/react`, not Radix. Different API (`render` prop instead of `asChild`, `delay` instead of `delayDuration`)
 - **Timestamps are milliseconds** — `entry_time` / `exit_time` stored as ms Unix timestamps (Date.getTime()), Drizzle mode is `timestamp_ms`
 
-## Phases
+## Ticket Tracking (YouTrack)
 
-See `docs/specs/ROADMAP.md` for the full prioritized roadmap with competitive analysis.
+Planned work lives in YouTrack, project key `HIN`. Design specs stay in
+`docs/specs/`.
 
-### Completed
+### Shipped
 
-- [x] Phase 1 — Foundation (scaffold, DB, app shell, seed, backup, IBKR stub)
-- [x] Phase 2 — Trade Journal CRUD (entry/edit/delete, executions model, computed metrics)
-- [x] Phase 3 — Analytics Dashboard (equity curve, 8 chart types, date range filter)
-- [x] Phase 4 — Sessions (daily journal, process scorecard, daily grade)
-- [x] Executions-based trade model (scaling in/out, recomputed flat fields)
-- [x] Test suite (58 tests, 100% branch coverage, 90% per-file thresholds)
+- Phase 1 — Foundation (scaffold, DB, app shell, seed, backup, IBKR stub)
+- Phase 2 — Trade Journal CRUD (entry/edit/delete, executions model, computed metrics)
+- Phase 3 — Analytics Dashboard (equity curve, 8 chart types, date range filter)
+- Phase 4 — Sessions (daily journal, process scorecard, daily grade)
+- Executions-based trade model (scaling in/out, recomputed flat fields)
+- Test suite (58 tests, 100% branch coverage, 90% per-file thresholds)
 
-### Phase 6 — Strategy & Tag System
+### Ticket-driven git workflow
 
-- [ ] Strategy assignment in trade form + analytics lookup (replace "Unassigned")
-- [ ] Custom tags on trades with P&L breakdown by tag
-- [ ] Trade search and filtering (ticker, date, strategy, tag, P&L range)
-
-### Phase 7 — Discipline & Behavior Tracking
-
-- [ ] Mistake/behavior tags per trade with P&L impact analysis
-- [ ] Efficiency / discipline score (per-trade rule adherence)
-- [ ] Exit analysis (did price hit target/stop after exit?)
-
-### Phase 8 — Reports & Review Automation
-
-- [ ] Weekly auto-review (aggregated stats + session notes)
-- [ ] Monthly performance report (month-over-month trends)
-- [ ] Tiltmeter (discipline streaks overlaid on equity curve)
-
-### Phase 9 — Import, Export & Integration
-
-- [ ] CSV export
-- [ ] IBKR auto-import (fill grouping, dedup)
-- [ ] Open positions tracker (live via IBKR API)
-
-### Phase 10 — Polish
-
-- [ ] Mobile-responsive layout refinements
-- [ ] PWA manifest
-- [ ] Strategy CRUD management page
-- [ ] Trading diary / notebook (passed-on trades)
-- [ ] Onboarding flow
+- No ticket, no code. Every change references a YouTrack ticket.
+- One ticket = one branch named `HIN-<n>-<kebab-desc>` (e.g.
+  `HIN-15-strategy-dropdown`). Never commit directly to `main`.
+- For multi-part features, create a parent ticket with subtasks grouped by
+  logical concern (not per-commit). One branch per parent ticket; subtasks are
+  individual commits within the branch.
+- Land branches with `git merge --no-ff`, preserving atomic commits.
+- Reference the ticket as a trailer on the last line of commit messages:
+  `Refs: HIN-15`. Move ticket states in YouTrack manually — commit messages
+  never auto-resolve tickets.
 
 ## Testing
 
@@ -216,5 +200,8 @@ See `docs/specs/ROADMAP.md` for the full prioritized roadmap with competitive an
 - SQLite database stored at project root as `hindsight.db`
 - Both `data/` and `hindsight.db` should be gitignored
 - No abbreviations in variable/column names (e.g. `profitLoss` not `pnl`)
+- Conventional commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`).
+  Messages brief and specific. No AI markers: no `Co-Authored-By`, no
+  "Generated with", no robot emoji.
 - Commit after each logical unit of work — never dump everything in one commit
 - LSP is enabled — skip manual `pnpm lint` / `pnpm format` calls unless asked
