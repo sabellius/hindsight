@@ -1,0 +1,23 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "youtrack": {
+      "enabled": true
+    }
+  },
+  "formatter": {
+    "biome": {
+      "command": ["pnpm", "exec", "biome", "check", "--write", "$FILE"],
+      "extensions": [
+        ".js",
+        ".jsx",
+        ".ts",
+        ".tsx",
+        ".json",
+        ".css",
+        ".md",
+        ".mdx"
+      ]
+    }
+  }
+}
