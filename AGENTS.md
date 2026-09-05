@@ -41,6 +41,8 @@ and shadcn/ui.
 - `pnpm format` — Biome format --write
 - `pnpm seed` — Seed DB with sample data (15 trades, 3 strategies, 2 accounts)
 - `pnpm backup` — Backup DB to `data/backups/`
+- `pnpm db:generate` — Generate a migration from schema changes (always pass `--name=kebab-intent`)
+- `pnpm db:migrate` — Apply pending migrations to `hindsight.db`
 - `pnpm test` — Run Vitest
 - `pnpm test:watch` — Run Vitest in watch mode
 - `pnpm test:coverage` — Run Vitest with v8 coverage report
@@ -102,6 +104,9 @@ src/
     utils.ts
 scripts/
   seed.ts                   — Seeds 2 accounts, 3 strategies, 15 trades + 30 executions
+drizzle/
+  0000_init.sql             — Initial migration (all 8 tables)
+  meta/_journal.json        — Migration journal (source of truth for order)
 ```
 
 ## Database Schema
@@ -128,6 +133,29 @@ tags: id, trade_id (FK), name
 
 settings: key, value
 ```
+
+## Database Migrations
+
+`src/lib/db/schema.ts` is the handwritten source of truth (and the query API —
+app code imports its table objects). `drizzle/*.sql` are generated history:
+`db:generate` diffs schema.ts against the snapshots in `drizzle/meta/`, and
+`db:migrate` applies pending SQL to the DB. Schema change and its generated
+migration must land in the same commit — otherwise app code compiles against
+columns the DB doesn't have.
+
+Workflow:
+
+1. Edit `src/lib/db/schema.ts`
+2. `pnpm db:generate --name=<kebab-intent>` (never omit `--name` — random
+   default names are unreadable)
+3. `pnpm db:migrate` to apply locally
+4. Commit the generated `drizzle/` files together with the schema change
+
+Migration order comes from `drizzle/meta/_journal.json`, not filenames. If two
+branches each generate a migration, the journal conflict must be resolved
+manually — renumber the younger side and update its journal entry.
+
+Fresh setup: `pnpm db:migrate && pnpm seed`.
 
 ## Architecture Notes
 
