@@ -1,8 +1,5 @@
-import { db } from "@/lib/db";
-import { accounts } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
-import { getActiveAccountId } from "@/lib/auth";
 import { SessionForm } from "@/components/sessions/session-form";
+import { getActiveAccountId } from "@/lib/auth";
 
 export default async function NewSessionPage() {
   const accountId = await getActiveAccountId();

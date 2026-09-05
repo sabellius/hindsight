@@ -40,10 +40,7 @@ export function TodayTradesTable({ trades }: { trades: TradeRow[] }) {
               className="h-24 text-center text-xs text-muted-foreground"
             >
               No trades today.{" "}
-              <a
-                href="/trades/new"
-                className="text-foreground underline"
-              >
+              <a href="/trades/new" className="text-foreground underline">
                 Add a trade
               </a>
             </TableCell>
@@ -66,17 +63,14 @@ export function TodayTradesTable({ trades }: { trades: TradeRow[] }) {
       </TableHeader>
       <TableBody>
         {trades.map((trade) => {
-          const isProfit =
-            trade.profitLoss != null && trade.profitLoss >= 0;
+          const isProfit = trade.profitLoss != null && trade.profitLoss >= 0;
           return (
             <TableRow
               key={trade.id}
               className={`cursor-pointer ${isProfit ? "bg-profit/[0.03]" : "bg-loss/[0.03]"}`}
               onClick={() => router.push(`/trades/${trade.id}`)}
             >
-              <TableCell className="font-semibold">
-                {trade.ticker}
-              </TableCell>
+              <TableCell className="font-semibold">{trade.ticker}</TableCell>
               <TableCell className="text-profit">Long</TableCell>
               <TableCell
                 className={`text-right tabular-nums font-semibold ${isProfit ? "text-profit" : "text-loss"}`}
@@ -88,9 +82,7 @@ export function TodayTradesTable({ trades }: { trades: TradeRow[] }) {
               <TableCell
                 className={`text-right tabular-nums ${isProfit ? "text-profit" : "text-loss"}`}
               >
-                {trade.riskMultiple != null
-                  ? `${trade.riskMultiple}R`
-                  : "—"}
+                {trade.riskMultiple != null ? `${trade.riskMultiple}R` : "—"}
               </TableCell>
               <TableCell className="text-right text-muted-foreground">
                 {new Date(trade.entryTime).toLocaleTimeString("en-US", {

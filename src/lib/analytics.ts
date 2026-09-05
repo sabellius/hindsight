@@ -1,4 +1,4 @@
-import { sql, desc } from "drizzle-orm";
+import { desc, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { trades } from "@/lib/db/schema";
 
@@ -10,7 +10,9 @@ export async function getAnalyticsData(days: number, accountId: number) {
   const allTrades = await db
     .select()
     .from(trades)
-    .where(sql`${trades.entryTime} >= ${since.getTime()} AND ${trades.accountId} = ${accountId}`)
+    .where(
+      sql`${trades.entryTime} >= ${since.getTime()} AND ${trades.accountId} = ${accountId}`,
+    )
     .orderBy(desc(trades.entryTime));
 
   const summary = computeSummaryMetrics(allTrades);
@@ -40,25 +42,19 @@ export function computeSummaryMetrics(
   );
   const winRate = totalTrades > 0 ? (winners.length / totalTrades) * 100 : 0;
 
-  const totalProfit = winners.reduce(
-    (sum, t) => sum + t.profitLoss!,
-    0,
-  );
+  const totalProfit = winners.reduce((sum, t) => sum + (t.profitLoss ?? 0), 0);
   const totalLoss = Math.abs(
-    losers.reduce((sum, t) => sum + t.profitLoss!, 0),
+    losers.reduce((sum, t) => sum + (t.profitLoss ?? 0), 0),
   );
   const profitFactor = totalLoss > 0 ? totalProfit / totalLoss : 0;
 
-  const avgWinner =
-    winners.length > 0 ? totalProfit / winners.length : 0;
+  const avgWinner = winners.length > 0 ? totalProfit / winners.length : 0;
   const avgLoser = losers.length > 0 ? totalLoss / losers.length : 0;
 
   return { totalTrades, winRate, profitFactor, avgWinner, avgLoser };
 }
 
-export function buildEquityCurve(
-  tradeList: (typeof trades.$inferSelect)[],
-) {
+export function buildEquityCurve(tradeList: (typeof trades.$inferSelect)[]) {
   let cumulative = 0;
   return tradeList
     .sort(
@@ -78,13 +74,8 @@ export function buildEquityCurve(
     });
 }
 
-export function groupByStrategy(
-  tradeList: (typeof trades.$inferSelect)[],
-) {
-  const map = new Map<
-    string,
-    { total: number; wins: number }
-  >();
+export function groupByStrategy(tradeList: (typeof trades.$inferSelect)[]) {
+  const map = new Map<string, { total: number; wins: number }>();
   for (const t of tradeList) {
     const key = "Unassigned";
     const entry = map.get(key) ?? { total: 0, wins: 0 };
@@ -101,26 +92,22 @@ export function groupByStrategy(
     .sort((a, b) => b.total - a.total);
 }
 
-export function groupByDayOfWeek(
-  tradeList: (typeof trades.$inferSelect)[],
-) {
+export function groupByDayOfWeek(tradeList: (typeof trades.$inferSelect)[]) {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
   const map = new Map<string, number>();
   for (const d of days) map.set(d, 0);
 
   for (const t of tradeList) {
     const day = days[new Date(t.entryTime).getDay() - 1];
-    if (day) map.set(day, map.get(day)! + (t.profitLoss ?? 0));
+    if (day) map.set(day, (map.get(day) ?? 0) + (t.profitLoss ?? 0));
   }
   return days.map((name) => ({
     name,
-    value: Math.round(map.get(name)! * 100) / 100,
+    value: Math.round((map.get(name) ?? 0) * 100) / 100,
   }));
 }
 
-export function groupByHour(
-  tradeList: (typeof trades.$inferSelect)[],
-) {
+export function groupByHour(tradeList: (typeof trades.$inferSelect)[]) {
   const hours: { hour: string; value: number; count: number }[] = [];
   for (let h = 16; h <= 23; h++) {
     const label = `${h}:00`;
@@ -129,10 +116,7 @@ export function groupByHour(
     );
     hours.push({
       hour: label,
-      value: tradesInHour.reduce(
-        (sum, t) => sum + (t.profitLoss ?? 0),
-        0,
-      ),
+      value: tradesInHour.reduce((sum, t) => sum + (t.profitLoss ?? 0), 0),
       count: tradesInHour.length,
     });
   }
@@ -155,7 +139,10 @@ export function buildRiskDistribution(
   return buckets.map((b) => ({
     label: b.label,
     count: tradeList.filter(
-      (t) => t.riskMultiple != null && t.riskMultiple >= b.min && t.riskMultiple < b.max,
+      (t) =>
+        t.riskMultiple != null &&
+        t.riskMultiple >= b.min &&
+        t.riskMultiple < b.max,
     ).length,
     isPositive: b.min >= 0,
   }));
@@ -168,6 +155,7 @@ export function buildStreaks(tradeList: (typeof trades.$inferSelect)[]) {
         new Date(a.entryTime).getTime() - new Date(b.entryTime).getTime(),
     )
     .map((t) => ({
+      id: t.id,
       isWin: t.profitLoss != null && t.profitLoss > 0,
       ticker: t.ticker,
     }));
@@ -179,8 +167,7 @@ export function buildDrawdown(tradeList: (typeof trades.$inferSelect)[]) {
   const points: { date: string; drawdown: number }[] = [];
 
   const sorted = [...tradeList].sort(
-    (a, b) =>
-      new Date(a.entryTime).getTime() - new Date(b.entryTime).getTime(),
+    (a, b) => new Date(a.entryTime).getTime() - new Date(b.entryTime).getTime(),
   );
 
   for (const t of sorted) {

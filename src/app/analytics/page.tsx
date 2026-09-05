@@ -1,5 +1,5 @@
-import { getAnalyticsData } from "@/lib/analytics";
 import { AnalyticsCharts } from "@/components/analytics/analytics-charts";
+import { getAnalyticsData } from "@/lib/analytics";
 import { getActiveAccountId } from "@/lib/auth";
 
 export default async function AnalyticsPage({

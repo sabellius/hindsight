@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,7 +50,9 @@ function FieldCard({
       <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
-      <div className={`text-sm font-semibold ${className ?? "text-foreground"}`}>
+      <div
+        className={`text-sm font-semibold ${className ?? "text-foreground"}`}
+      >
         {children}
       </div>
     </div>
@@ -61,7 +63,9 @@ function GradeBadge({ grade, label }: { grade: string | null; label: string }) {
   if (!grade) {
     return (
       <div className="flex flex-col gap-1 rounded-lg border border-border bg-secondary p-2 text-center">
-        <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</span>
+        <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+          {label}
+        </span>
         <span className="text-sm text-muted-foreground">—</span>
       </div>
     );
@@ -73,8 +77,12 @@ function GradeBadge({ grade, label }: { grade: string | null; label: string }) {
         ? "border-border bg-secondary text-foreground"
         : "border-loss/40 bg-loss-surface text-loss";
   return (
-    <div className={`flex flex-col gap-1 rounded-lg border p-2 text-center ${color}`}>
-      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</span>
+    <div
+      className={`flex flex-col gap-1 rounded-lg border p-2 text-center ${color}`}
+    >
+      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+        {label}
+      </span>
       <span className="text-sm font-bold">{grade}</span>
     </div>
   );
@@ -136,16 +144,31 @@ export function TradeDetail({
         <div className="grid grid-cols-4 gap-4">
           <div className="flex flex-col gap-1.5">
             <Label>Stop Loss</Label>
-            <Input name="stopLoss" type="number" step="0.01" defaultValue={trade.stopLoss ?? ""} />
+            <Input
+              name="stopLoss"
+              type="number"
+              step="0.01"
+              defaultValue={trade.stopLoss ?? ""}
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>Target</Label>
-            <Input name="target" type="number" step="0.01" defaultValue={trade.target ?? ""} />
+            <Input
+              name="target"
+              type="number"
+              step="0.01"
+              defaultValue={trade.target ?? ""}
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>Conviction</Label>
-            <Select name="conviction" defaultValue={trade.conviction ?? undefined}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select
+              name="conviction"
+              defaultValue={trade.conviction ?? undefined}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="A">A</SelectItem>
                 <SelectItem value="B">B</SelectItem>
@@ -155,8 +178,13 @@ export function TradeDetail({
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>Process Grade</Label>
-            <Select name="processGrade" defaultValue={trade.processGrade ?? undefined}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select
+              name="processGrade"
+              defaultValue={trade.processGrade ?? undefined}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="A">A</SelectItem>
                 <SelectItem value="B">B</SelectItem>
@@ -170,8 +198,16 @@ export function TradeDetail({
           <Textarea name="notes" rows={4} defaultValue={trade.notes ?? ""} />
         </div>
         <div className="flex gap-3">
-          <Button type="submit" disabled={pending}>{pending ? "Saving..." : "Save"}</Button>
-          <Button type="button" variant="secondary" onClick={() => setEditing(false)}>Cancel</Button>
+          <Button type="submit" disabled={pending}>
+            {pending ? "Saving..." : "Save"}
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setEditing(false)}
+          >
+            Cancel
+          </Button>
         </div>
       </form>
     );
@@ -181,8 +217,13 @@ export function TradeDetail({
     <div className="flex flex-col gap-6 max-w-3xl">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="text-base font-bold text-foreground">{trade.ticker}</h1>
-          <Badge variant="secondary" className="border-profit/30 bg-profit-surface text-profit">
+          <h1 className="text-base font-bold text-foreground">
+            {trade.ticker}
+          </h1>
+          <Badge
+            variant="secondary"
+            className="border-profit/30 bg-profit-surface text-profit"
+          >
             Long
           </Badge>
         </div>
@@ -194,7 +235,8 @@ export function TradeDetail({
           </div>
           {trade.profitLossPercent != null && (
             <div className={`text-xs ${profitLossColor}`}>
-              {isProfit ? "+" : ""}{trade.profitLossPercent.toFixed(2)}%
+              {isProfit ? "+" : ""}
+              {trade.profitLossPercent.toFixed(2)}%
             </div>
           )}
         </div>
@@ -237,9 +279,7 @@ export function TradeDetail({
         <FieldCard label="Risk Multiple" className={profitLossColor}>
           {trade.riskMultiple != null ? `${trade.riskMultiple}R` : "—"}
         </FieldCard>
-        <FieldCard label="Commission">
-          ${trade.commission.toFixed(2)}
-        </FieldCard>
+        <FieldCard label="Commission">${trade.commission.toFixed(2)}</FieldCard>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
@@ -254,8 +294,12 @@ export function TradeDetail({
 
       {trade.notes && (
         <div className="rounded-lg border border-border bg-secondary p-3">
-          <div className="mb-2 text-[10px] uppercase tracking-wide text-muted-foreground">Notes</div>
-          <p className="text-xs leading-relaxed text-muted-foreground">{trade.notes}</p>
+          <div className="mb-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+            Notes
+          </div>
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            {trade.notes}
+          </p>
         </div>
       )}
 
@@ -294,18 +338,50 @@ export function TradeDetail({
             className="mb-3 grid grid-cols-5 gap-2 rounded-lg border border-border bg-secondary p-2"
           >
             <Select name="side" required defaultValue="buy">
-              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="buy">Buy</SelectItem>
                 <SelectItem value="sell">Sell</SelectItem>
               </SelectContent>
             </Select>
-            <Input name="price" type="number" step="0.01" required placeholder="Price" className="h-8 text-xs" />
-            <Input name="quantity" type="number" required placeholder="Qty" className="h-8 text-xs" />
-            <Input name="timestamp" type="datetime-local" required className="h-8 text-xs" />
+            <Input
+              name="price"
+              type="number"
+              step="0.01"
+              required
+              placeholder="Price"
+              className="h-8 text-xs"
+            />
+            <Input
+              name="quantity"
+              type="number"
+              required
+              placeholder="Qty"
+              className="h-8 text-xs"
+            />
+            <Input
+              name="timestamp"
+              type="datetime-local"
+              required
+              className="h-8 text-xs"
+            />
             <div className="flex gap-1">
-              <Input name="commission" type="number" step="0.01" placeholder="Comm." defaultValue="0" className="h-8 text-xs" />
-              <Button type="submit" size="sm" className="h-8 text-xs px-2" disabled={addPending}>
+              <Input
+                name="commission"
+                type="number"
+                step="0.01"
+                placeholder="Comm."
+                defaultValue="0"
+                className="h-8 text-xs"
+              />
+              <Button
+                type="submit"
+                size="sm"
+                className="h-8 text-xs px-2"
+                disabled={addPending}
+              >
                 {addPending ? "..." : "Add"}
               </Button>
             </div>
@@ -334,13 +410,19 @@ export function TradeDetail({
                   })}
                 </td>
                 <td className="py-1.5">
-                  <span className={exec.side === "buy" ? "text-profit" : "text-loss"}>
+                  <span
+                    className={
+                      exec.side === "buy" ? "text-profit" : "text-loss"
+                    }
+                  >
                     {exec.side === "buy" ? "Buy" : "Sell"}
                   </span>
                 </td>
                 <td className="py-1.5 text-right">${exec.price.toFixed(2)}</td>
                 <td className="py-1.5 text-right">{exec.quantity}</td>
-                <td className="py-1.5 text-right">${exec.commission.toFixed(2)}</td>
+                <td className="py-1.5 text-right">
+                  ${exec.commission.toFixed(2)}
+                </td>
                 <td className="py-1.5 text-right">
                   <button
                     type="button"
@@ -384,7 +466,11 @@ export function TradeDetail({
         <Button variant="secondary" onClick={() => setEditing(true)}>
           Edit
         </Button>
-        <Button variant="secondary" className="text-loss hover:bg-loss-surface" onClick={handleDelete}>
+        <Button
+          variant="secondary"
+          className="text-loss hover:bg-loss-surface"
+          onClick={handleDelete}
+        >
           Delete
         </Button>
       </div>

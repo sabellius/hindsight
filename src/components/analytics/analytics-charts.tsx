@@ -1,25 +1,22 @@
 "use client";
 
 import {
-  AreaChart,
   Area,
-  BarChart,
+  AreaChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
 } from "recharts";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-type AnalyticsData = Awaited<ReturnType<typeof import("@/lib/analytics").getAnalyticsData>>;
+type AnalyticsData = Awaited<
+  ReturnType<typeof import("@/lib/analytics").getAnalyticsData>
+>;
 
 interface AnalyticsChartsProps {
   data: AnalyticsData;
@@ -119,12 +116,21 @@ export function AnalyticsCharts({ data, days }: AnalyticsChartsProps) {
               <ResponsiveContainer width="100%" height={250}>
                 <AreaChart data={data.equityCurve}>
                   <defs>
-                    <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient
+                      id="equityGradient"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
                       <stop offset="0%" stopColor="#22C55E" stopOpacity={0.3} />
                       <stop offset="100%" stopColor="#22C55E" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(255,255,255,0.06)"
+                  />
                   <XAxis dataKey="date" tick={{ fill: "#666", fontSize: 10 }} />
                   <YAxis tick={{ fill: "#666", fontSize: 10 }} />
                   <Tooltip
@@ -158,8 +164,14 @@ export function AnalyticsCharts({ data, days }: AnalyticsChartsProps) {
               <CardContent>
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={data.byDayOfWeek}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                    <XAxis dataKey="name" tick={{ fill: "#666", fontSize: 10 }} />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="rgba(255,255,255,0.06)"
+                    />
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fill: "#666", fontSize: 10 }}
+                    />
                     <YAxis tick={{ fill: "#666", fontSize: 10 }} />
                     <Tooltip
                       contentStyle={{
@@ -192,9 +204,18 @@ export function AnalyticsCharts({ data, days }: AnalyticsChartsProps) {
               <CardContent>
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={data.riskDistribution}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                    <XAxis dataKey="label" tick={{ fill: "#666", fontSize: 10 }} />
-                    <YAxis tick={{ fill: "#666", fontSize: 10 }} allowDecimals={false} />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="rgba(255,255,255,0.06)"
+                    />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fill: "#666", fontSize: 10 }}
+                    />
+                    <YAxis
+                      tick={{ fill: "#666", fontSize: 10 }}
+                      allowDecimals={false}
+                    />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: "#111",
@@ -240,7 +261,9 @@ export function AnalyticsCharts({ data, days }: AnalyticsChartsProps) {
                               : "rgba(255,255,255,0.04)",
                       }}
                     >
-                      <span className="text-[10px] text-muted-foreground">{h.hour}</span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {h.hour}
+                      </span>
                       <span
                         className={`text-xs font-semibold tabular-nums ${
                           h.value >= 0 ? "text-profit" : "text-loss"
@@ -248,7 +271,9 @@ export function AnalyticsCharts({ data, days }: AnalyticsChartsProps) {
                       >
                         ${h.value.toFixed(0)}
                       </span>
-                      <span className="text-[10px] text-muted-foreground">{h.count} trades</span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {h.count} trades
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -263,9 +288,9 @@ export function AnalyticsCharts({ data, days }: AnalyticsChartsProps) {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-1.5">
-                  {data.streaks.map((s, i) => (
+                  {data.streaks.map((s) => (
                     <div
-                      key={`${s.ticker}-${i}`}
+                      key={s.id}
                       className="h-4 w-4 rounded-sm"
                       style={{
                         backgroundColor: s.isWin
@@ -277,7 +302,9 @@ export function AnalyticsCharts({ data, days }: AnalyticsChartsProps) {
                   ))}
                 </div>
                 {data.streaks.length === 0 && (
-                  <p className="text-xs text-muted-foreground">No trades yet.</p>
+                  <p className="text-xs text-muted-foreground">
+                    No trades yet.
+                  </p>
                 )}
               </CardContent>
             </Card>
@@ -293,12 +320,25 @@ export function AnalyticsCharts({ data, days }: AnalyticsChartsProps) {
               <ResponsiveContainer width="100%" height={150}>
                 <AreaChart data={data.drawdown}>
                   <defs>
-                    <linearGradient id="drawdownGradient" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient
+                      id="drawdownGradient"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
                       <stop offset="0%" stopColor="#EF4444" stopOpacity={0} />
-                      <stop offset="100%" stopColor="#EF4444" stopOpacity={0.3} />
+                      <stop
+                        offset="100%"
+                        stopColor="#EF4444"
+                        stopOpacity={0.3}
+                      />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(255,255,255,0.06)"
+                  />
                   <XAxis dataKey="date" tick={{ fill: "#666", fontSize: 10 }} />
                   <YAxis tick={{ fill: "#666", fontSize: 10 }} />
                   <Tooltip

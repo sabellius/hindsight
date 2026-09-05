@@ -2,9 +2,9 @@ import Database from "better-sqlite3";
 
 const db = new Database("hindsight.db");
 
-const existing = db
-  .prepare("SELECT COUNT(*) as count FROM accounts")
-  .get() as { count: number };
+const existing = db.prepare("SELECT COUNT(*) as count FROM accounts").get() as {
+  count: number;
+};
 
 if (existing.count === 0) {
   db.prepare(
@@ -18,9 +18,9 @@ if (existing.count === 0) {
   console.log("Accounts already exist, skipping seed");
 }
 
-const tradeCount = db
-  .prepare("SELECT COUNT(*) as count FROM trades")
-  .get() as { count: number };
+const tradeCount = db.prepare("SELECT COUNT(*) as count FROM trades").get() as {
+  count: number;
+};
 
 if (tradeCount.count === 0) {
   const hour = 3600000;
@@ -68,21 +68,201 @@ if (tradeCount.count === 0) {
   );
 
   const staticTrades = [
-    { ticker: "NVDA", strategyId: 1, daysAgo: 1, entryHour: 10, durationHours: 1.5, entryPrice: 213.91, exitPrice: 217.63, stopLoss: 210.70, target: 221.39, quantity: 84, commission: 1.0 },
-    { ticker: "AAPL", strategyId: 2, daysAgo: 1, entryHour: 10, durationHours: 0.75, entryPrice: 313.30, exitPrice: 309.85, stopLoss: 308.61, target: 324.27, quantity: 57, commission: 1.0 },
-    { ticker: "TSLA", strategyId: 3, daysAgo: 2, entryHour: 10, durationHours: 2, entryPrice: 418.70, exitPrice: 422.54, stopLoss: 412.42, target: 433.35, quantity: 42, commission: 1.0 },
-    { ticker: "AMD", strategyId: 1, daysAgo: 2, entryHour: 12, durationHours: 1, entryPrice: 530.40, exitPrice: 533.21, stopLoss: 522.44, target: 548.96, quantity: 33, commission: 1.0 },
-    { ticker: "META", strategyId: 2, daysAgo: 3, entryHour: 10, durationHours: 0.5, entryPrice: 603.35, exitPrice: 607.92, stopLoss: 594.30, target: 624.47, quantity: 29, commission: 1.0 },
-    { ticker: "GOOGL", strategyId: 3, daysAgo: 4, entryHour: 11, durationHours: 1.5, entryPrice: 376.60, exitPrice: 375.44, stopLoss: 370.95, target: 389.78, quantity: 47, commission: 1.0 },
-    { ticker: "MSFT", strategyId: 1, daysAgo: 5, entryHour: 10, durationHours: 1, entryPrice: 432.71, exitPrice: 443.52, stopLoss: 426.22, target: 447.86, quantity: 41, commission: 1.0 },
-    { ticker: "AMZN", strategyId: 2, daysAgo: 6, entryHour: 10, durationHours: 2.5, entryPrice: 271.31, exitPrice: 272.10, stopLoss: 267.25, target: 280.81, quantity: 66, commission: 1.0 },
-    { ticker: "SPY", strategyId: 1, daysAgo: 7, entryHour: 13, durationHours: 0.75, entryPrice: 592.40, exitPrice: 595.80, stopLoss: 583.52, target: 613.13, quantity: 29, commission: 0.5 },
-    { ticker: "NVDA", strategyId: 2, daysAgo: 8, entryHour: 10, durationHours: 1.25, entryPrice: 208.15, exitPrice: 204.30, stopLoss: 205.03, target: 215.44, quantity: 86, commission: 1.0 },
-    { ticker: "QQQ", strategyId: 1, daysAgo: 9, entryHour: 11, durationHours: 1, entryPrice: 521.70, exitPrice: 524.30, stopLoss: 513.88, target: 539.96, quantity: 34, commission: 0.5 },
-    { ticker: "TSLA", strategyId: 3, daysAgo: 10, entryHour: 10, durationHours: 3, entryPrice: 425.60, exitPrice: 432.10, stopLoss: 419.22, target: 440.50, quantity: 41, commission: 1.0 },
-    { ticker: "AAPL", strategyId: 1, daysAgo: 11, entryHour: 12, durationHours: 0.5, entryPrice: 310.80, exitPrice: 308.90, stopLoss: 306.14, target: 321.68, quantity: 94, commission: 1.0 },
-    { ticker: "META", strategyId: 2, daysAgo: 12, entryHour: 10, durationHours: 0.75, entryPrice: 598.20, exitPrice: 604.50, stopLoss: 589.23, target: 619.14, quantity: 29, commission: 1.0 },
-    { ticker: "AMD", strategyId: 1, daysAgo: 14, entryHour: 11, durationHours: 2, entryPrice: 525.90, exitPrice: 518.40, stopLoss: 518.01, target: 544.31, quantity: 29, commission: 1.0 },
+    {
+      ticker: "NVDA",
+      strategyId: 1,
+      daysAgo: 1,
+      entryHour: 10,
+      durationHours: 1.5,
+      entryPrice: 213.91,
+      exitPrice: 217.63,
+      stopLoss: 210.7,
+      target: 221.39,
+      quantity: 84,
+      commission: 1.0,
+    },
+    {
+      ticker: "AAPL",
+      strategyId: 2,
+      daysAgo: 1,
+      entryHour: 10,
+      durationHours: 0.75,
+      entryPrice: 313.3,
+      exitPrice: 309.85,
+      stopLoss: 308.61,
+      target: 324.27,
+      quantity: 57,
+      commission: 1.0,
+    },
+    {
+      ticker: "TSLA",
+      strategyId: 3,
+      daysAgo: 2,
+      entryHour: 10,
+      durationHours: 2,
+      entryPrice: 418.7,
+      exitPrice: 422.54,
+      stopLoss: 412.42,
+      target: 433.35,
+      quantity: 42,
+      commission: 1.0,
+    },
+    {
+      ticker: "AMD",
+      strategyId: 1,
+      daysAgo: 2,
+      entryHour: 12,
+      durationHours: 1,
+      entryPrice: 530.4,
+      exitPrice: 533.21,
+      stopLoss: 522.44,
+      target: 548.96,
+      quantity: 33,
+      commission: 1.0,
+    },
+    {
+      ticker: "META",
+      strategyId: 2,
+      daysAgo: 3,
+      entryHour: 10,
+      durationHours: 0.5,
+      entryPrice: 603.35,
+      exitPrice: 607.92,
+      stopLoss: 594.3,
+      target: 624.47,
+      quantity: 29,
+      commission: 1.0,
+    },
+    {
+      ticker: "GOOGL",
+      strategyId: 3,
+      daysAgo: 4,
+      entryHour: 11,
+      durationHours: 1.5,
+      entryPrice: 376.6,
+      exitPrice: 375.44,
+      stopLoss: 370.95,
+      target: 389.78,
+      quantity: 47,
+      commission: 1.0,
+    },
+    {
+      ticker: "MSFT",
+      strategyId: 1,
+      daysAgo: 5,
+      entryHour: 10,
+      durationHours: 1,
+      entryPrice: 432.71,
+      exitPrice: 443.52,
+      stopLoss: 426.22,
+      target: 447.86,
+      quantity: 41,
+      commission: 1.0,
+    },
+    {
+      ticker: "AMZN",
+      strategyId: 2,
+      daysAgo: 6,
+      entryHour: 10,
+      durationHours: 2.5,
+      entryPrice: 271.31,
+      exitPrice: 272.1,
+      stopLoss: 267.25,
+      target: 280.81,
+      quantity: 66,
+      commission: 1.0,
+    },
+    {
+      ticker: "SPY",
+      strategyId: 1,
+      daysAgo: 7,
+      entryHour: 13,
+      durationHours: 0.75,
+      entryPrice: 592.4,
+      exitPrice: 595.8,
+      stopLoss: 583.52,
+      target: 613.13,
+      quantity: 29,
+      commission: 0.5,
+    },
+    {
+      ticker: "NVDA",
+      strategyId: 2,
+      daysAgo: 8,
+      entryHour: 10,
+      durationHours: 1.25,
+      entryPrice: 208.15,
+      exitPrice: 204.3,
+      stopLoss: 205.03,
+      target: 215.44,
+      quantity: 86,
+      commission: 1.0,
+    },
+    {
+      ticker: "QQQ",
+      strategyId: 1,
+      daysAgo: 9,
+      entryHour: 11,
+      durationHours: 1,
+      entryPrice: 521.7,
+      exitPrice: 524.3,
+      stopLoss: 513.88,
+      target: 539.96,
+      quantity: 34,
+      commission: 0.5,
+    },
+    {
+      ticker: "TSLA",
+      strategyId: 3,
+      daysAgo: 10,
+      entryHour: 10,
+      durationHours: 3,
+      entryPrice: 425.6,
+      exitPrice: 432.1,
+      stopLoss: 419.22,
+      target: 440.5,
+      quantity: 41,
+      commission: 1.0,
+    },
+    {
+      ticker: "AAPL",
+      strategyId: 1,
+      daysAgo: 11,
+      entryHour: 12,
+      durationHours: 0.5,
+      entryPrice: 310.8,
+      exitPrice: 308.9,
+      stopLoss: 306.14,
+      target: 321.68,
+      quantity: 94,
+      commission: 1.0,
+    },
+    {
+      ticker: "META",
+      strategyId: 2,
+      daysAgo: 12,
+      entryHour: 10,
+      durationHours: 0.75,
+      entryPrice: 598.2,
+      exitPrice: 604.5,
+      stopLoss: 589.23,
+      target: 619.14,
+      quantity: 29,
+      commission: 1.0,
+    },
+    {
+      ticker: "AMD",
+      strategyId: 1,
+      daysAgo: 14,
+      entryHour: 11,
+      durationHours: 2,
+      entryPrice: 525.9,
+      exitPrice: 518.4,
+      stopLoss: 518.01,
+      target: 544.31,
+      quantity: 29,
+      commission: 1.0,
+    },
   ];
 
   function deriveMetadata(
@@ -133,7 +313,8 @@ if (tradeCount.count === 0) {
       return {
         conviction: "B",
         processGrade: "B",
-        notes: "Quick cut when the setup failed. Good risk management, small loss.",
+        notes:
+          "Quick cut when the setup failed. Good risk management, small loss.",
       };
     }
     if (!isWin && absRisk <= 2) {
@@ -159,24 +340,30 @@ if (tradeCount.count === 0) {
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
   );
 
-  const insertMany = db.transaction((rows: { trade: unknown[]; executions: unknown[][] }[]) => {
-    for (const row of rows) {
-      const tradeId = insertTrade.run(...row.trade).lastInsertRowid;
-      for (const exec of row.executions) {
-        insertExecution.run(tradeId, ...exec);
+  const insertMany = db.transaction(
+    (rows: { trade: unknown[]; executions: unknown[][] }[]) => {
+      for (const row of rows) {
+        const tradeId = insertTrade.run(...row.trade).lastInsertRowid;
+        for (const exec of row.executions) {
+          insertExecution.run(tradeId, ...exec);
+        }
       }
-    }
-  });
+    },
+  );
 
   const seedRows: { trade: unknown[]; executions: unknown[][] }[] = [];
 
   for (const trade of staticTrades) {
     const marketHourUtc = trade.entryHour + 4;
-    const entryMs = adjustToWeekday(todayStart - trade.daysAgo * day + marketHourUtc * hour);
+    const entryMs = adjustToWeekday(
+      todayStart - trade.daysAgo * day + marketHourUtc * hour,
+    );
     const exitMs = entryMs + trade.durationHours * hour;
 
-    const profitLoss = (trade.exitPrice - trade.entryPrice) * trade.quantity - trade.commission;
-    const profitLossPercent = ((trade.exitPrice - trade.entryPrice) / trade.entryPrice) * 100;
+    const profitLoss =
+      (trade.exitPrice - trade.entryPrice) * trade.quantity - trade.commission;
+    const profitLossPercent =
+      ((trade.exitPrice - trade.entryPrice) / trade.entryPrice) * 100;
     const riskPerShare = Math.abs(trade.entryPrice - trade.stopLoss);
     const risk = riskPerShare * trade.quantity;
     const riskMultiple = risk > 0 ? profitLoss / risk : 0;
@@ -206,7 +393,14 @@ if (tradeCount.count === 0) {
       ],
       executions: [
         ["buy", trade.entryPrice, trade.quantity, entryMs, 0, Date.now()],
-        ["sell", trade.exitPrice, trade.quantity, exitMs, trade.commission, Date.now()],
+        [
+          "sell",
+          trade.exitPrice,
+          trade.quantity,
+          exitMs,
+          trade.commission,
+          Date.now(),
+        ],
       ],
     });
 

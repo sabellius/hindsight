@@ -3,7 +3,9 @@ import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 export const accounts = sqliteTable("accounts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
-  type: text("type", { enum: ["live", "paper"] }).notNull().default("live"),
+  type: text("type", { enum: ["live", "paper"] })
+    .notNull()
+    .default("live"),
   broker: text("broker"),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()

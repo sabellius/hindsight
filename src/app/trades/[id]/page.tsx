@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
-import { db } from "@/lib/db";
-import { trades, executions } from "@/lib/db/schema";
 import { notFound } from "next/navigation";
 import { TradeDetail } from "@/components/trades/trade-detail";
+import { db } from "@/lib/db";
+import { executions, trades } from "@/lib/db/schema";
 
 export default async function TradeDetailPage({
   params,
@@ -35,7 +35,5 @@ export default async function TradeDetailPage({
     createdAt: e.createdAt.getTime(),
   }));
 
-  return (
-    <TradeDetail trade={serialized} executions={serializedExecutions} />
-  );
+  return <TradeDetail trade={serialized} executions={serializedExecutions} />;
 }

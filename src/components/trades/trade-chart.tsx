@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import {
+  CandlestickSeries,
+  ColorType,
   createChart,
   createSeriesMarkers,
-  CandlestickSeries,
   type IChartApi,
-  type Time,
-  type SeriesMarker,
-  ColorType,
   LineStyle,
+  type SeriesMarker,
+  type Time,
 } from "lightweight-charts";
+import { useEffect, useRef } from "react";
 
 type Candle = {
   time: number;

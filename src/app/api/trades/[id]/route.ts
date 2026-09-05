@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { trades } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 
 export async function PATCH(
   request: NextRequest,
@@ -16,9 +16,7 @@ export async function PATCH(
       stopLoss: formData.get("stopLoss")
         ? Number(formData.get("stopLoss"))
         : null,
-      target: formData.get("target")
-        ? Number(formData.get("target"))
-        : null,
+      target: formData.get("target") ? Number(formData.get("target")) : null,
       conviction: (formData.get("conviction") as "A" | "B" | "C") ?? null,
       processGrade: (formData.get("processGrade") as "A" | "B" | "C") ?? null,
       notes: (formData.get("notes") as string) || null,

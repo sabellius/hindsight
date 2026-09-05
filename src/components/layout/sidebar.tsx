@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   BarChart3,
   ChevronLeft,
@@ -11,14 +9,15 @@ import {
   Settings,
   TrendingUp,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { AccountSwitcher } from "@/components/layout/account-switcher";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-import { AccountSwitcher } from "@/components/layout/account-switcher";
+import { cn } from "@/lib/utils";
 
 const navigation = [
   { href: "/", label: "Dashboard", icon: BarChart3 },
@@ -35,7 +34,12 @@ interface SidebarProps {
   activeAccountId: number;
 }
 
-export function Sidebar({ collapsed, onToggle, accounts, activeAccountId }: SidebarProps) {
+export function Sidebar({
+  collapsed,
+  onToggle,
+  accounts,
+  activeAccountId,
+}: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -78,9 +82,7 @@ export function Sidebar({ collapsed, onToggle, accounts, activeAccountId }: Side
                       ? "bg-sidebar-accent text-sidebar-accent-foreground"
                       : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
                   )}
-                  render={(props) => (
-                    <Link href={item.href} {...props} />
-                  )}
+                  render={(props) => <Link href={item.href} {...props} />}
                 >
                   {icon}
                 </TooltipTrigger>
@@ -111,7 +113,10 @@ export function Sidebar({ collapsed, onToggle, accounts, activeAccountId }: Side
 
       {!collapsed && (
         <div className="border-t border-sidebar-border p-2">
-          <AccountSwitcher accounts={accounts} activeAccountId={activeAccountId} />
+          <AccountSwitcher
+            accounts={accounts}
+            activeAccountId={activeAccountId}
+          />
         </div>
       )}
     </aside>

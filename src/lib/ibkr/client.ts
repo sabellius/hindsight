@@ -1,4 +1,5 @@
-const IBKR_GATEWAY_URL = process.env.IBKR_GATEWAY_URL ?? "https://localhost:5000";
+const IBKR_GATEWAY_URL =
+  process.env.IBKR_GATEWAY_URL ?? "https://localhost:5000";
 
 async function ibkrFetch(path: string, options?: RequestInit) {
   const res = await fetch(`${IBKR_GATEWAY_URL}${path}`, {

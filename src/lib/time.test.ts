@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  millisecondsToSeconds,
-  secondsToMilliseconds,
   formatUtcDateString,
+  millisecondsToSeconds,
   parseUtcDateTimeToSeconds,
+  secondsToMilliseconds,
 } from "@/lib/time";
 
 describe("millisecondsToSeconds", () => {

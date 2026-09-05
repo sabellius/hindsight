@@ -1,15 +1,15 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  buildDrawdown,
   buildEquityCurve,
-  groupByStrategy,
-  groupByDayOfWeek,
-  groupByHour,
   buildRiskDistribution,
   buildStreaks,
-  buildDrawdown,
   computeSummaryMetrics,
+  groupByDayOfWeek,
+  groupByHour,
+  groupByStrategy,
 } from "@/lib/analytics";
-import { trades } from "@/lib/db/schema";
+import type { trades } from "@/lib/db/schema";
 
 type TradeRow = (typeof trades.$inferSelect)[];
 type Trade = TradeRow[number];
@@ -57,7 +57,9 @@ describe("buildEquityCurve", () => {
   });
 
   it("handles null profitLoss as zero", () => {
-    const trades = [makeTrade({ entryTime: new Date("2024-01-01"), profitLoss: null })];
+    const trades = [
+      makeTrade({ entryTime: new Date("2024-01-01"), profitLoss: null }),
+    ];
     const curve = buildEquityCurve(trades);
 
     expect(curve[0].value).toBe(0);
@@ -100,7 +102,9 @@ describe("groupByStrategy", () => {
   });
 
   it("treats null profitLoss as not a win", () => {
-    const trades = [makeTrade({ entryTime: new Date("2024-01-01"), profitLoss: null })];
+    const trades = [
+      makeTrade({ entryTime: new Date("2024-01-01"), profitLoss: null }),
+    ];
     const result = groupByStrategy(trades);
     expect(result[0].winRate).toBe(0);
     expect(result[0].total).toBe(1);
@@ -220,9 +224,21 @@ describe("buildRiskDistribution", () => {
 describe("buildStreaks", () => {
   it("returns win/loss array sorted by time", () => {
     const trades = [
-      makeTrade({ entryTime: new Date("2024-01-03"), profitLoss: -10, ticker: "C" }),
-      makeTrade({ entryTime: new Date("2024-01-01"), profitLoss: 100, ticker: "A" }),
-      makeTrade({ entryTime: new Date("2024-01-02"), profitLoss: 50, ticker: "B" }),
+      makeTrade({
+        entryTime: new Date("2024-01-03"),
+        profitLoss: -10,
+        ticker: "C",
+      }),
+      makeTrade({
+        entryTime: new Date("2024-01-01"),
+        profitLoss: 100,
+        ticker: "A",
+      }),
+      makeTrade({
+        entryTime: new Date("2024-01-02"),
+        profitLoss: 50,
+        ticker: "B",
+      }),
     ];
 
     const streaks = buildStreaks(trades);
@@ -236,7 +252,9 @@ describe("buildStreaks", () => {
   });
 
   it("handles null profitLoss as not a win", () => {
-    const trades = [makeTrade({ entryTime: new Date("2024-01-01"), profitLoss: null })];
+    const trades = [
+      makeTrade({ entryTime: new Date("2024-01-01"), profitLoss: null }),
+    ];
     const streaks = buildStreaks(trades);
     expect(streaks[0].isWin).toBe(false);
   });
@@ -275,7 +293,9 @@ describe("buildDrawdown", () => {
   });
 
   it("handles null profitLoss as zero", () => {
-    const trades = [makeTrade({ entryTime: new Date("2024-01-01"), profitLoss: null })];
+    const trades = [
+      makeTrade({ entryTime: new Date("2024-01-01"), profitLoss: null }),
+    ];
     const result = buildDrawdown(trades);
     expect(result[0].drawdown).toBe(0);
   });
@@ -334,7 +354,9 @@ describe("computeSummaryMetrics", () => {
   });
 
   it("treats null profitLoss as neither win nor loss", () => {
-    const trades = [makeTrade({ entryTime: new Date("2024-01-01"), profitLoss: null })];
+    const trades = [
+      makeTrade({ entryTime: new Date("2024-01-01"), profitLoss: null }),
+    ];
 
     const result = computeSummaryMetrics(trades);
 

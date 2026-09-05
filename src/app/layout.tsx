@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/layout/app-shell";
+import { getActiveAccountId } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { accounts } from "@/lib/db/schema";
-import { getActiveAccountId } from "@/lib/auth";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -36,7 +36,9 @@ export default async function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="h-full">
-        <AppShell accounts={allAccounts} activeAccountId={activeAccountId}>{children}</AppShell>
+        <AppShell accounts={allAccounts} activeAccountId={activeAccountId}>
+          {children}
+        </AppShell>
       </body>
     </html>
   );

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { Sidebar } from "@/components/layout/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const COLLAPSED_KEY = "hindsight-sidebar-collapsed";
 

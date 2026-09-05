@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { and, eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { executions, trades } from "@/lib/db/schema";
 import { computeTradeMetricsFromExecutions } from "@/lib/db/computed";
-import { eq, and } from "drizzle-orm";
+import { executions, trades } from "@/lib/db/schema";
 
 async function recomputeTrade(tradeId: number) {
   const allExecutions = await db
