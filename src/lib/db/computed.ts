@@ -25,11 +25,12 @@ export function computeTradeMetricsFromExecutions(
   const entryPrice = weightedAverage(buys);
   const exitPrice = weightedAverage(sells);
   const quantity = totalBuyQty;
-  const entryTime = buys.length > 0 ? Math.min(...buys.map((e) => e.timestamp)) : 0;
-  const exitTime = sells.length > 0 ? Math.max(...sells.map((e) => e.timestamp)) : 0;
+  const entryTime =
+    buys.length > 0 ? Math.min(...buys.map((e) => e.timestamp)) : 0;
+  const exitTime =
+    sells.length > 0 ? Math.max(...sells.map((e) => e.timestamp)) : 0;
 
-  const profitLoss =
-    (exitPrice - entryPrice) * quantity - totalCommission;
+  const profitLoss = (exitPrice - entryPrice) * quantity - totalCommission;
 
   const profitLossPercent =
     Math.round(((exitPrice - entryPrice) / entryPrice) * 100 * 100) / 100;
@@ -37,9 +38,8 @@ export function computeTradeMetricsFromExecutions(
   let riskMultiple: number | null = null;
   if (stopLoss != null && stopLoss !== entryPrice) {
     riskMultiple =
-      Math.round(
-        ((exitPrice - entryPrice) / (entryPrice - stopLoss)) * 100,
-      ) / 100;
+      Math.round(((exitPrice - entryPrice) / (entryPrice - stopLoss)) * 100) /
+      100;
   }
 
   return {

@@ -1,5 +1,8 @@
-import { describe, it, expect } from "vitest";
-import { computeTradeMetrics, computeTradeMetricsFromExecutions } from "@/lib/db/computed";
+import { describe, expect, it } from "vitest";
+import {
+  computeTradeMetrics,
+  computeTradeMetricsFromExecutions,
+} from "@/lib/db/computed";
 
 describe("computeTradeMetrics", () => {
   it("computes profit for a winning long trade", () => {
@@ -78,8 +81,8 @@ describe("computeTradeMetrics", () => {
 
   it("computes percentage to 2 decimal places", () => {
     const result = computeTradeMetrics({
-      entryPrice: 131.20,
-      exitPrice: 132.50,
+      entryPrice: 131.2,
+      exitPrice: 132.5,
       quantity: 50,
       commission: 1,
       stopLoss: 130,
@@ -105,8 +108,20 @@ describe("computeTradeMetricsFromExecutions", () => {
   it("computes metrics for simple buy + sell", () => {
     const result = computeTradeMetricsFromExecutions(
       [
-        { side: "buy", price: 100, quantity: 50, commission: 0.5, timestamp: 1000 },
-        { side: "sell", price: 105, quantity: 50, commission: 0.5, timestamp: 2000 },
+        {
+          side: "buy",
+          price: 100,
+          quantity: 50,
+          commission: 0.5,
+          timestamp: 1000,
+        },
+        {
+          side: "sell",
+          price: 105,
+          quantity: 50,
+          commission: 0.5,
+          timestamp: 2000,
+        },
       ],
       98,
     );
@@ -125,9 +140,27 @@ describe("computeTradeMetricsFromExecutions", () => {
   it("computes metrics for multiple buys (scale in)", () => {
     const result = computeTradeMetricsFromExecutions(
       [
-        { side: "buy", price: 100, quantity: 100, commission: 1, timestamp: 1000 },
-        { side: "buy", price: 102, quantity: 50, commission: 1, timestamp: 1500 },
-        { side: "sell", price: 110, quantity: 150, commission: 1, timestamp: 3000 },
+        {
+          side: "buy",
+          price: 100,
+          quantity: 100,
+          commission: 1,
+          timestamp: 1000,
+        },
+        {
+          side: "buy",
+          price: 102,
+          quantity: 50,
+          commission: 1,
+          timestamp: 1500,
+        },
+        {
+          side: "sell",
+          price: 110,
+          quantity: 150,
+          commission: 1,
+          timestamp: 3000,
+        },
       ],
       98,
     );
@@ -142,9 +175,27 @@ describe("computeTradeMetricsFromExecutions", () => {
   it("computes metrics for multiple sells (partial exits)", () => {
     const result = computeTradeMetricsFromExecutions(
       [
-        { side: "buy", price: 50, quantity: 100, commission: 1, timestamp: 1000 },
-        { side: "sell", price: 52, quantity: 60, commission: 1, timestamp: 2000 },
-        { side: "sell", price: 55, quantity: 40, commission: 1, timestamp: 3000 },
+        {
+          side: "buy",
+          price: 50,
+          quantity: 100,
+          commission: 1,
+          timestamp: 1000,
+        },
+        {
+          side: "sell",
+          price: 52,
+          quantity: 60,
+          commission: 1,
+          timestamp: 2000,
+        },
+        {
+          side: "sell",
+          price: 55,
+          quantity: 40,
+          commission: 1,
+          timestamp: 3000,
+        },
       ],
       48,
     );
@@ -158,10 +209,34 @@ describe("computeTradeMetricsFromExecutions", () => {
   it("computes metrics for multiple buys + multiple sells", () => {
     const result = computeTradeMetricsFromExecutions(
       [
-        { side: "buy", price: 131.20, quantity: 100, commission: 1, timestamp: 1000 },
-        { side: "buy", price: 132.40, quantity: 50, commission: 1, timestamp: 1500 },
-        { side: "sell", price: 135.00, quantity: 100, commission: 1, timestamp: 3000 },
-        { side: "sell", price: 135.80, quantity: 50, commission: 1, timestamp: 3100 },
+        {
+          side: "buy",
+          price: 131.2,
+          quantity: 100,
+          commission: 1,
+          timestamp: 1000,
+        },
+        {
+          side: "buy",
+          price: 132.4,
+          quantity: 50,
+          commission: 1,
+          timestamp: 1500,
+        },
+        {
+          side: "sell",
+          price: 135.0,
+          quantity: 100,
+          commission: 1,
+          timestamp: 3000,
+        },
+        {
+          side: "sell",
+          price: 135.8,
+          quantity: 50,
+          commission: 1,
+          timestamp: 3100,
+        },
       ],
       130,
     );
@@ -177,8 +252,20 @@ describe("computeTradeMetricsFromExecutions", () => {
   it("returns null riskMultiple when no stopLoss", () => {
     const result = computeTradeMetricsFromExecutions(
       [
-        { side: "buy", price: 100, quantity: 10, commission: 0, timestamp: 1000 },
-        { side: "sell", price: 105, quantity: 10, commission: 0, timestamp: 2000 },
+        {
+          side: "buy",
+          price: 100,
+          quantity: 10,
+          commission: 0,
+          timestamp: 1000,
+        },
+        {
+          side: "sell",
+          price: 105,
+          quantity: 10,
+          commission: 0,
+          timestamp: 2000,
+        },
       ],
       null,
     );
@@ -190,8 +277,20 @@ describe("computeTradeMetricsFromExecutions", () => {
   it("totals commission across all executions", () => {
     const result = computeTradeMetricsFromExecutions(
       [
-        { side: "buy", price: 50, quantity: 100, commission: 2, timestamp: 1000 },
-        { side: "sell", price: 52, quantity: 100, commission: 3, timestamp: 2000 },
+        {
+          side: "buy",
+          price: 50,
+          quantity: 100,
+          commission: 2,
+          timestamp: 1000,
+        },
+        {
+          side: "sell",
+          price: 52,
+          quantity: 100,
+          commission: 3,
+          timestamp: 2000,
+        },
       ],
       49,
     );
@@ -203,8 +302,20 @@ describe("computeTradeMetricsFromExecutions", () => {
   it("returns null riskMultiple when stopLoss equals entryPrice", () => {
     const result = computeTradeMetricsFromExecutions(
       [
-        { side: "buy", price: 100, quantity: 10, commission: 0, timestamp: 1000 },
-        { side: "sell", price: 105, quantity: 10, commission: 0, timestamp: 2000 },
+        {
+          side: "buy",
+          price: 100,
+          quantity: 10,
+          commission: 0,
+          timestamp: 1000,
+        },
+        {
+          side: "sell",
+          price: 105,
+          quantity: 10,
+          commission: 0,
+          timestamp: 2000,
+        },
       ],
       100,
     );
@@ -215,8 +326,20 @@ describe("computeTradeMetricsFromExecutions", () => {
   it("handles buys only (open position)", () => {
     const result = computeTradeMetricsFromExecutions(
       [
-        { side: "buy", price: 100, quantity: 50, commission: 1, timestamp: 1000 },
-        { side: "buy", price: 102, quantity: 25, commission: 1, timestamp: 1500 },
+        {
+          side: "buy",
+          price: 100,
+          quantity: 50,
+          commission: 1,
+          timestamp: 1000,
+        },
+        {
+          side: "buy",
+          price: 102,
+          quantity: 25,
+          commission: 1,
+          timestamp: 1500,
+        },
       ],
       98,
     );
@@ -231,7 +354,13 @@ describe("computeTradeMetricsFromExecutions", () => {
   it("handles sells only (closing leftover)", () => {
     const result = computeTradeMetricsFromExecutions(
       [
-        { side: "sell", price: 105, quantity: 50, commission: 1, timestamp: 2000 },
+        {
+          side: "sell",
+          price: 105,
+          quantity: 50,
+          commission: 1,
+          timestamp: 2000,
+        },
       ],
       null,
     );

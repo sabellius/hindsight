@@ -18,5 +18,7 @@ export function formatUtcDateString(seconds: number): string {
 }
 
 export function parseUtcDateTimeToSeconds(dateTime: string): number {
-  return millisecondsToSeconds(new Date(`${dateTime.replace(" ", "T")}Z`).getTime());
+  return millisecondsToSeconds(
+    new Date(`${dateTime.replace(" ", "T")}Z`).getTime(),
+  );
 }

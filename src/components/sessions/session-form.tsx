@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -13,7 +14,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Props = {
   accountId: number;
@@ -66,7 +66,9 @@ export function SessionForm({ accountId, session }: Props) {
             name="date"
             type="date"
             required
-            defaultValue={session?.date ?? new Date().toISOString().split("T")[0]}
+            defaultValue={
+              session?.date ?? new Date().toISOString().split("T")[0]
+            }
           />
         </CardContent>
       </Card>
@@ -94,7 +96,10 @@ export function SessionForm({ accountId, session }: Props) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Select name="marketCondition" defaultValue={session?.marketCondition ?? ""}>
+          <Select
+            name="marketCondition"
+            defaultValue={session?.marketCondition ?? ""}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select condition" />
             </SelectTrigger>
@@ -224,28 +229,33 @@ function CheckboxField({
   const [checked, setChecked] = useState(defaultChecked);
   return (
     <label className="flex items-center gap-3 text-sm cursor-pointer">
-      <input
-        type="hidden"
-        name={name}
-        value={checked ? "1" : "0"}
-      />
-      <button
-        type="button"
-        role="checkbox"
-        aria-checked={checked}
-        onClick={() => setChecked(!checked)}
-        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
-          checked
-            ? "border-profit bg-profit text-profit-foreground"
-            : "border-border bg-background"
-        }`}
-      >
+      <input type="hidden" name={name} value={checked ? "1" : "0"} />
+      <span className="relative flex h-4 w-4 shrink-0">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={() => setChecked(!checked)}
+          className={`h-4 w-4 appearance-none rounded border transition-colors ${
+            checked ? "border-profit bg-profit" : "border-border bg-background"
+          }`}
+        />
         {checked && (
-          <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          <svg
+            className="pointer-events-none absolute inset-0 m-auto h-3 w-3 text-profit-foreground"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={3}
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         )}
-      </button>
+      </span>
       <span className="text-foreground">{label}</span>
     </label>
   );

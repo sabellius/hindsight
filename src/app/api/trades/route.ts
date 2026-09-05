@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { trades, executions } from "@/lib/db/schema";
 import { computeTradeMetrics } from "@/lib/db/computed";
+import { executions, trades } from "@/lib/db/schema";
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
@@ -16,14 +16,13 @@ export async function POST(request: NextRequest) {
   const entryTime = new Date(formData.get("entryTime") as string);
   const exitTime = new Date(formData.get("exitTime") as string);
 
-  const { profitLoss, profitLossPercent, riskMultiple } =
-    computeTradeMetrics({
-      entryPrice,
-      exitPrice,
-      quantity,
-      commission,
-      stopLoss,
-    });
+  const { profitLoss, profitLossPercent, riskMultiple } = computeTradeMetrics({
+    entryPrice,
+    exitPrice,
+    quantity,
+    commission,
+    stopLoss,
+  });
 
   const result = await db
     .insert(trades)
@@ -37,9 +36,7 @@ export async function POST(request: NextRequest) {
       exitPrice,
       quantity,
       stopLoss,
-      target: formData.get("target")
-        ? Number(formData.get("target"))
-        : null,
+      target: formData.get("target") ? Number(formData.get("target")) : null,
       commission,
       profitLoss,
       profitLossPercent,

@@ -1,6 +1,6 @@
+import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { accounts } from "@/lib/db/schema";
-import { cookies } from "next/headers";
 
 export async function getActiveAccountId(): Promise<number> {
   const cookieStore = await cookies();

@@ -1,16 +1,10 @@
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, sql } from "drizzle-orm";
+import { EquityCurveChart } from "@/components/analytics/equity-curve-chart";
+import { TodayTradesTable } from "@/components/trades/today-trades-table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getActiveAccountId } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { trades } from "@/lib/db/schema";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { TodayTradesTable } from "@/components/trades/today-trades-table";
-import { EquityCurveChart } from "@/components/analytics/equity-curve-chart";
-
-import { getActiveAccountId } from "@/lib/auth";
 
 export default async function HomePage() {
   const accountId = await getActiveAccountId();
@@ -46,7 +40,7 @@ export default async function HomePage() {
       ? Math.round((todayWinners.length / todayTrades.length) * 100)
       : null;
 
-  const last30Winners = last30.filter(
+  const _last30Winners = last30.filter(
     (t) => t.profitLoss != null && t.profitLoss > 0,
   );
   const last30AvgRisk =
@@ -99,17 +93,29 @@ export default async function HomePage() {
                     ? `${isProfit ? "+" : ""}$${todayProfitLoss.toFixed(2)}`
                     : "$0.00"}
                 </div>
-                {todayTrades.length > 0 && (() => {
-                  const totalProfitLoss = todayTrades.reduce((s, t) => s + (t.profitLoss ?? 0), 0);
-                  const totalCost = todayTrades.reduce((s, t) => s + t.entryPrice * t.quantity, 0);
-                  const percentReturn = totalCost > 0 ? ((totalProfitLoss / totalCost) * 100).toFixed(2) : "0.00";
-                  return (
-                    <p className={`mt-0.5 text-xs ${isProfit ? "text-profit" : "text-loss"}`}>
-                      {isProfit ? "+" : ""}
-                      {percentReturn}%
-                    </p>
-                  );
-                })()}
+                {todayTrades.length > 0 &&
+                  (() => {
+                    const totalProfitLoss = todayTrades.reduce(
+                      (s, t) => s + (t.profitLoss ?? 0),
+                      0,
+                    );
+                    const totalCost = todayTrades.reduce(
+                      (s, t) => s + t.entryPrice * t.quantity,
+                      0,
+                    );
+                    const percentReturn =
+                      totalCost > 0
+                        ? ((totalProfitLoss / totalCost) * 100).toFixed(2)
+                        : "0.00";
+                    return (
+                      <p
+                        className={`mt-0.5 text-xs ${isProfit ? "text-profit" : "text-loss"}`}
+                      >
+                        {isProfit ? "+" : ""}
+                        {percentReturn}%
+                      </p>
+                    );
+                  })()}
               </CardContent>
             </Card>
 
@@ -124,7 +130,8 @@ export default async function HomePage() {
                   {todayWinRate != null ? `${todayWinRate}%` : "—"}
                 </div>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  {todayTrades.length} trade{todayTrades.length !== 1 ? "s" : ""}
+                  {todayTrades.length} trade
+                  {todayTrades.length !== 1 ? "s" : ""}
                 </p>
               </CardContent>
             </Card>
@@ -159,9 +166,7 @@ export default async function HomePage() {
                 <div className="text-lg font-bold text-foreground">
                   {last30AvgRisk != null ? `${last30AvgRisk}R` : "—"}
                 </div>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  30 days
-                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">30 days</p>
               </CardContent>
             </Card>
           </div>
@@ -173,9 +178,7 @@ export default async function HomePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <EquityCurveChart
-                data={buildEquityCurve(last30)}
-              />
+              <EquityCurveChart data={buildEquityCurve(last30)} />
             </CardContent>
           </Card>
         </div>
@@ -203,18 +206,14 @@ export default async function HomePage() {
   );
 }
 
-function computeStreak(
-  tradeList: (typeof trades.$inferSelect)[],
-) {
+function computeStreak(tradeList: (typeof trades.$inferSelect)[]) {
   if (tradeList.length === 0) return null;
 
   const sorted = [...tradeList].sort(
-    (a, b) =>
-      new Date(b.entryTime).getTime() - new Date(a.entryTime).getTime(),
+    (a, b) => new Date(b.entryTime).getTime() - new Date(a.entryTime).getTime(),
   );
 
-  const firstIsWin =
-    sorted[0].profitLoss != null && sorted[0].profitLoss > 0;
+  const firstIsWin = sorted[0].profitLoss != null && sorted[0].profitLoss > 0;
   let count = 1;
   for (let i = 1; i < sorted.length; i++) {
     if ((sorted[i].profitLoss ?? 0) > 0 === firstIsWin) {
@@ -227,9 +226,7 @@ function computeStreak(
   return { count, type: firstIsWin ? "W" : "L" };
 }
 
-function buildEquityCurve(
-  tradeList: (typeof trades.$inferSelect)[],
-) {
+function buildEquityCurve(tradeList: (typeof trades.$inferSelect)[]) {
   let cumulative = 0;
   return [...tradeList]
     .sort(

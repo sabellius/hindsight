@@ -1,11 +1,10 @@
-import { eq } from "drizzle-orm";
-import { db } from "@/lib/db";
-import { sessions, trades } from "@/lib/db/schema";
+import { eq, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { SessionForm } from "@/components/sessions/session-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getActiveAccountId } from "@/lib/auth";
-import { sql } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { sessions, trades } from "@/lib/db/schema";
 
 export default async function SessionDetailPage({
   params,
@@ -44,7 +43,7 @@ export default async function SessionDetailPage({
       <div className="flex items-center justify-between">
         <h1 className="text-sm font-semibold text-foreground">
           Session —{" "}
-          {new Date(session.date + "T00:00:00").toLocaleDateString("en-US", {
+          {new Date(`${session.date}T00:00:00`).toLocaleDateString("en-US", {
             weekday: "long",
             month: "long",
             day: "numeric",
@@ -85,7 +84,9 @@ export default async function SessionDetailPage({
             </div>
             <div>
               <span className="text-muted-foreground">Profit/Loss</span>
-              <div className={`font-semibold ${isProfit ? "text-profit" : "text-loss"}`}>
+              <div
+                className={`font-semibold ${isProfit ? "text-profit" : "text-loss"}`}
+              >
                 {isProfit ? "+" : ""}${dayProfitLoss.toFixed(2)}
               </div>
             </div>

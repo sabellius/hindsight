@@ -1,7 +1,7 @@
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/lib/db";
 import { accounts } from "@/lib/db/schema";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 export default async function SettingsPage() {
   const allAccounts = await db.select().from(accounts);
@@ -53,7 +53,10 @@ export default async function SettingsPage() {
                 Not connected
               </span>
             </div>
-            <Badge variant="secondary" className="border-loss/30 bg-loss-surface text-loss">
+            <Badge
+              variant="secondary"
+              className="border-loss/30 bg-loss-surface text-loss"
+            >
               Disconnected
             </Badge>
           </div>

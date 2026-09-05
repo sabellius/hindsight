@@ -1,7 +1,7 @@
-import Database from "better-sqlite3";
 import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, copyFileSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
+import Database from "better-sqlite3";
 
 const BACKUP_DIR = "data/backups";
 const DB_PATH = "hindsight.db";
@@ -47,7 +47,9 @@ function main() {
         for (const f of toDelete) {
           execSync(`rm -f "${f}"`);
         }
-        console.log(`Cleaned up ${toDelete.length} old backups (keeping last ${MAX_BACKUPS})`);
+        console.log(
+          `Cleaned up ${toDelete.length} old backups (keeping last ${MAX_BACKUPS})`,
+        );
       }
     })
     .catch((err) => {

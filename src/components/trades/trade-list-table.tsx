@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -10,7 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 
 type Trade = {
   id: number;
@@ -46,7 +45,11 @@ const columns: { key: string; label: string; className?: string }[] = [
   { key: "entryTime", label: "Date", className: "text-right" },
 ];
 
-export function TradeListTable({ data, sortField, sortDir }: TradeListTableProps) {
+export function TradeListTable({
+  data,
+  sortField,
+  sortDir,
+}: TradeListTableProps) {
   const router = useRouter();
   const pathname = usePathname();
 

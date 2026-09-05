@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { ALPACA_DATA_BASE_URL } from "@/lib/constants";
 import { millisecondsToSeconds } from "@/lib/time";
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,37 +44,81 @@ export function TradeForm({ accountId }: { accountId: number }) {
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="quantity">Quantity *</Label>
-          <Input id="quantity" name="quantity" type="number" required min={1} placeholder="100" />
+          <Input
+            id="quantity"
+            name="quantity"
+            type="number"
+            required
+            min={1}
+            placeholder="100"
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="commission">Commission</Label>
-          <Input id="commission" name="commission" type="number" step="0.01" defaultValue="0" />
+          <Input
+            id="commission"
+            name="commission"
+            type="number"
+            step="0.01"
+            defaultValue="0"
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-4 gap-4">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="entryPrice">Entry Price *</Label>
-          <Input id="entryPrice" name="entryPrice" type="number" step="0.01" required placeholder="131.20" />
+          <Input
+            id="entryPrice"
+            name="entryPrice"
+            type="number"
+            step="0.01"
+            required
+            placeholder="131.20"
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="exitPrice">Exit Price *</Label>
-          <Input id="exitPrice" name="exitPrice" type="number" step="0.01" required placeholder="132.50" />
+          <Input
+            id="exitPrice"
+            name="exitPrice"
+            type="number"
+            step="0.01"
+            required
+            placeholder="132.50"
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="stopLoss">Stop Loss</Label>
-          <Input id="stopLoss" name="stopLoss" type="number" step="0.01" placeholder="130.40" />
+          <Input
+            id="stopLoss"
+            name="stopLoss"
+            type="number"
+            step="0.01"
+            placeholder="130.40"
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="target">Target</Label>
-          <Input id="target" name="target" type="number" step="0.01" placeholder="133.50" />
+          <Input
+            id="target"
+            name="target"
+            type="number"
+            step="0.01"
+            placeholder="133.50"
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="entryTime">Entry Time *</Label>
-          <Input id="entryTime" name="entryTime" type="datetime-local" required />
+          <Input
+            id="entryTime"
+            name="entryTime"
+            type="datetime-local"
+            required
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="exitTime">Exit Time *</Label>
@@ -113,7 +157,12 @@ export function TradeForm({ accountId }: { accountId: number }) {
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="notes">Notes</Label>
-        <Textarea id="notes" name="notes" rows={4} placeholder="Trade rationale, observations..." />
+        <Textarea
+          id="notes"
+          name="notes"
+          rows={4}
+          placeholder="Trade rationale, observations..."
+        />
       </div>
 
       <div className="flex gap-3">

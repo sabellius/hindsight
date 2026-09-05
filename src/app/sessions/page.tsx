@@ -1,9 +1,9 @@
+import { desc, eq } from "drizzle-orm";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { getActiveAccountId } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { sessions, trades } from "@/lib/db/schema";
-import { getActiveAccountId } from "@/lib/auth";
-import { desc, eq, sql } from "drizzle-orm";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 export default async function SessionsPage() {
   const accountId = await getActiveAccountId();
@@ -68,13 +68,17 @@ export default async function SessionsPage() {
                   <CardContent className="flex items-center gap-6 py-4">
                     <div className="w-24 shrink-0">
                       <div className="text-sm font-semibold text-foreground">
-                        {new Date(session.date + "T00:00:00").toLocaleDateString("en-US", {
+                        {new Date(
+                          `${session.date}T00:00:00`,
+                        ).toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
                         })}
                       </div>
                       <div className="text-[10px] text-muted-foreground">
-                        {new Date(session.date + "T00:00:00").toLocaleDateString("en-US", {
+                        {new Date(
+                          `${session.date}T00:00:00`,
+                        ).toLocaleDateString("en-US", {
                           weekday: "short",
                         })}
                       </div>
