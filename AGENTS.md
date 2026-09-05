@@ -141,7 +141,7 @@ settings: key, value
 
 ## Ticket Tracking (YouTrack)
 
-Planned work lives in YouTrack, project key `HIN`. Design specs stay in
+Planned work lives in YouTrack, project key `HND`. Design specs stay in
 `docs/specs/`.
 
 ### Shipped
@@ -156,14 +156,14 @@ Planned work lives in YouTrack, project key `HIN`. Design specs stay in
 ### Ticket-driven git workflow
 
 - No ticket, no code. Every change references a YouTrack ticket.
-- One ticket = one branch named `HIN-<n>-<kebab-desc>` (e.g.
-  `HIN-15-strategy-dropdown`). Never commit directly to `main`.
+- One ticket = one branch named `HND-<n>-<kebab-desc>` (e.g.
+  `HND-15-strategy-dropdown`). Never commit directly to `main`.
 - For multi-part features, create a parent ticket with subtasks grouped by
   logical concern (not per-commit). One branch per parent ticket; subtasks are
   individual commits within the branch.
 - Land branches with `git merge --no-ff`, preserving atomic commits.
 - Reference the ticket as a trailer on the last line of commit messages:
-  `Refs: HIN-15`. Move ticket states in YouTrack manually — commit messages
+  `Refs: HND-15`. Move ticket states in YouTrack manually — commit messages
   never auto-resolve tickets.
 
 ## Testing
