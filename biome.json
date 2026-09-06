@@ -41,6 +41,16 @@
   },
   "overrides": [
     {
+      "includes": ["src/testing/**"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noEmptyPattern": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": ["src/components/ui/label.tsx"],
       "linter": {
         "rules": {
