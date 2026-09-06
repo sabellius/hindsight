@@ -102,6 +102,10 @@ src/
     constants.ts            — Alpaca/Yahoo API URLs and user agent
     time.ts                 — UTC timestamp conversion helpers
     utils.ts
+  testing/
+    db.ts                   — createTestDb(): in-memory SQLite + applied migrations
+    fixtures.ts             — exports `test` with a per-test `db` fixture
+    fixtures.test.ts        — harness behavior tests
 scripts/
   seed.ts                   — Seeds 2 accounts, 3 strategies, 15 trades + 30 executions
 drizzle/
@@ -200,6 +204,15 @@ Planned work lives in YouTrack, project key `HND`. Design specs stay in
 - **Coverage provider**: @vitest/coverage-v8
 - **Config**: `vitest.config.ts` with `@/` path alias, 90% per-file thresholds
 - **Setup**: `vitest.setup.ts` imports jest-dom matchers
+- **DB harness**: `src/testing/fixtures.ts` exports `test` — every test gets a
+  fresh migrated in-memory database via the `db` fixture (isolation by
+  disposal). DB tests add `// @vitest-environment node` at the top. Test data
+  comes from factories, never bulk seeds.
+- **better-sqlite3 transactions are synchronous-only**: async callbacks throw
+  `Transaction function cannot return a promise` (better-sqlite3 docs, drizzle
+  #5063). Use sync callbacks with sync terminators (`.run()`, `.all()`,
+  `.get()`); `await db.transaction(async ...)` from the drizzle docs does not
+  apply to this driver.
 - **Current coverage**: 58 tests, 100% branch coverage across `computed.ts`, `analytics.ts`, `time.ts`, `utils.ts`
 - **Commands**: `pnpm test` | `pnpm test:watch` | `pnpm test:coverage`
 - **Rule**: Every new function, API route, and UI component must have tests before merging. Coverage thresholds must pass (`pnpm test:coverage`).
