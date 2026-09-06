@@ -190,9 +190,11 @@ Planned work lives in YouTrack, project key `HND`. Design specs stay in
 - No ticket, no code. Every change references a YouTrack ticket.
 - One ticket = one branch named `HND-<n>-<kebab-desc>` (e.g.
   `HND-15-strategy-dropdown`). Never commit directly to `main`.
-- For multi-part features, create a parent ticket with subtasks grouped by
-  logical concern (not per-commit). One branch per parent ticket; subtasks are
-  individual commits within the branch.
+- Multi-part features get a parent ticket with subtasks grouped by logical
+  concern. The parent has no branch of its own; each subtask gets its own
+  branch, based on its nearest dependency branch — stacked where dependent,
+  flat where independent.
+- Land branches bottom-up with `git merge --no-ff`, in dependency order.
 - Land branches with `git merge --no-ff`, preserving atomic commits.
 - Reference the ticket as a trailer on the last line of commit messages:
   `Refs: HND-15`. Move ticket states in YouTrack manually — commit messages
