@@ -1,14 +1,14 @@
 import { eq } from "drizzle-orm";
-import { type createDb, db } from "@/lib/db";
+import { type AppDatabase, db } from "@/lib/db";
 import {
   computeTradeMetrics,
   computeTradeMetricsFromExecutions,
 } from "@/lib/db/computed";
 import { executions, trades } from "@/lib/db/schema";
 
-type Database = ReturnType<typeof createDb>;
+type Queryable = Pick<AppDatabase, "select" | "insert" | "update">;
 
-export function recomputeTradeMetrics(database: Database, tradeId: number) {
+export function recomputeTradeMetrics(database: Queryable, tradeId: number) {
   const trade = database
     .select()
     .from(trades)
