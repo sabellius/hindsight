@@ -33,10 +33,12 @@ async function recomputeTrade(tradeId: number) {
     .update(trades)
     .set({
       entryPrice: metrics.entryPrice,
-      exitPrice: metrics.exitPrice,
+      ...(metrics.exitPrice !== null ? { exitPrice: metrics.exitPrice } : {}),
       quantity: metrics.quantity,
       entryTime: new Date(metrics.entryTime),
-      exitTime: new Date(metrics.exitTime),
+      ...(metrics.exitTime !== null
+        ? { exitTime: new Date(metrics.exitTime) }
+        : {}),
       commission: metrics.commission,
       profitLoss: metrics.profitLoss,
       profitLossPercent: metrics.profitLossPercent,
