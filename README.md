@@ -25,7 +25,7 @@ It doubles as a portfolio project.
   from the Alpaca Markets API.
 - **Risk guardrails**: 1% max risk per trade and 3% max daily loss, shown
   against your account in the UI.
-- **IBKR Client Portal**: connection status only for now; auto-import is next.
+- **IBKR Client Portal**: connection status only for now.
 
 ## Tech stack
 
@@ -65,9 +65,8 @@ variables are needed unless you want live price charts: put
 
 ## Testing
 
-58 tests with 100% branch coverage across the core libraries (`computed.ts`,
-`analytics.ts`, `time.ts`, `utils.ts`). CI runs lint, typecheck, and tests on
-every push and pull request.
+Coverage floors (90% per-file) are enforced in CI, which runs lint,
+typecheck, and tests on every push and pull request.
 
 ## License
 
