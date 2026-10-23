@@ -1,51 +1,9 @@
 import { and, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { computeTradeMetricsFromExecutions } from "@/lib/db/computed";
-import { executions, trades } from "@/lib/db/schema";
-
-async function recomputeTrade(tradeId: number) {
-  const allExecutions = await db
-    .select()
-    .from(executions)
-    .where(eq(executions.tradeId, tradeId));
-
-  const trade = await db
-    .select({ stopLoss: trades.stopLoss })
-    .from(trades)
-    .where(eq(trades.id, tradeId))
-    .get();
-
-  if (!trade || allExecutions.length === 0) return;
-
-  const metrics = computeTradeMetricsFromExecutions(
-    allExecutions.map((e) => ({
-      side: e.side as "buy" | "sell",
-      price: e.price,
-      quantity: e.quantity,
-      commission: e.commission,
-      timestamp: e.timestamp.getTime(),
-    })),
-    trade.stopLoss,
-  );
-
-  await db
-    .update(trades)
-    .set({
-      entryPrice: metrics.entryPrice,
-      ...(metrics.exitPrice !== null ? { exitPrice: metrics.exitPrice } : {}),
-      quantity: metrics.quantity,
-      entryTime: new Date(metrics.entryTime),
-      ...(metrics.exitTime !== null
-        ? { exitTime: new Date(metrics.exitTime) }
-        : {}),
-      commission: metrics.commission,
-      profitLoss: metrics.profitLoss,
-      profitLossPercent: metrics.profitLossPercent,
-      riskMultiple: metrics.riskMultiple,
-    })
-    .where(eq(trades.id, tradeId));
-}
+import { addExecution } from "@/lib/db/add-execution";
+import { recomputeTrade } from "@/lib/db/recompute";
+import { executions } from "@/lib/db/schema";
 
 export async function POST(
   request: NextRequest,
@@ -55,8 +13,7 @@ export async function POST(
   const tradeId = Number(id);
   const formData = await request.formData();
 
-  await db.insert(executions).values({
-    tradeId,
+  addExecution(db, tradeId, {
     side: formData.get("side") as "buy" | "sell",
     price: Number(formData.get("price")),
     quantity: Number(formData.get("quantity")),
@@ -64,7 +21,6 @@ export async function POST(
     commission: Number(formData.get("commission") ?? 0),
   });
 
-  await recomputeTrade(tradeId);
   return NextResponse.json({ ok: true });
 }
 
@@ -88,7 +44,7 @@ export async function PATCH(
     })
     .where(eq(executions.id, executionId));
 
-  await recomputeTrade(tradeId);
+  recomputeTrade(tradeId);
   return NextResponse.json({ ok: true });
 }
 
@@ -107,6 +63,6 @@ export async function DELETE(
       and(eq(executions.id, executionId), eq(executions.tradeId, tradeId)),
     );
 
-  await recomputeTrade(tradeId);
+  recomputeTrade(tradeId);
   return NextResponse.json({ ok: true });
 }

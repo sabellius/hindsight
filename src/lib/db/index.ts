@@ -8,3 +8,5 @@ export function createDb(databasePath: string) {
 }
 
 export const db = createDb("hindsight.db");
+
+export type AppDatabase = ReturnType<typeof createDb>;
