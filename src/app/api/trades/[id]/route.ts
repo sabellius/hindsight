@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { recomputeTrade } from "@/lib/db/recompute";
 import { trades } from "@/lib/db/schema";
 
 export async function PATCH(
@@ -22,6 +23,8 @@ export async function PATCH(
       notes: (formData.get("notes") as string) || null,
     })
     .where(eq(trades.id, Number(id)));
+
+  recomputeTrade(Number(id));
 
   return NextResponse.json({ ok: true });
 }
