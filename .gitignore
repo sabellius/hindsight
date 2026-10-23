@@ -47,3 +47,8 @@ next-env.d.ts
 hindsight.db
 data/
 .firecrawl/
+stirling-data/
+.codegraph/
+
+# real broker exports (never commit)
+src/testing/fixtures/flex/raw/
