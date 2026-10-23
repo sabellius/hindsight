@@ -19,27 +19,43 @@ export function computeTradeMetricsFromExecutions(
   const buys = executions.filter((e) => e.side === "buy");
   const sells = executions.filter((e) => e.side === "sell");
 
-  const totalBuyQty = buys.reduce((s, e) => s + e.quantity, 0);
+  const totalBuyQuantity = buys.reduce((s, e) => s + e.quantity, 0);
+  const totalSellQuantity = sells.reduce((s, e) => s + e.quantity, 0);
   const totalCommission = executions.reduce((s, e) => s + e.commission, 0);
 
   const entryPrice = weightedAverage(buys);
-  const exitPrice = weightedAverage(sells);
-  const quantity = totalBuyQty;
+  const exitPriceAverage = weightedAverage(sells);
+  const exitPrice = sells.length > 0 ? exitPriceAverage : null;
+  const quantity = totalBuyQuantity;
   const entryTime =
     buys.length > 0 ? Math.min(...buys.map((e) => e.timestamp)) : 0;
   const exitTime =
-    sells.length > 0 ? Math.max(...sells.map((e) => e.timestamp)) : 0;
+    sells.length > 0 ? Math.max(...sells.map((e) => e.timestamp)) : null;
 
-  const profitLoss = (exitPrice - entryPrice) * quantity - totalCommission;
+  const isOpen = totalBuyQuantity > 0 && totalSellQuantity < totalBuyQuantity;
+  const closedQuantity = Math.min(totalBuyQuantity, totalSellQuantity);
+  const hasRealized = closedQuantity > 0 && entryPrice > 0;
 
-  const profitLossPercent =
-    Math.round(((exitPrice - entryPrice) / entryPrice) * 100 * 100) / 100;
+  const profitLoss = hasRealized
+    ? (exitPriceAverage - entryPrice) * closedQuantity - totalCommission
+    : null;
+
+  const profitLossPercent = hasRealized
+    ? Math.round(((exitPriceAverage - entryPrice) / entryPrice) * 100 * 100) /
+      100
+    : null;
 
   let riskMultiple: number | null = null;
-  if (stopLoss != null && stopLoss !== entryPrice) {
+  if (
+    hasRealized &&
+    stopLoss != null &&
+    stopLoss !== entryPrice &&
+    entryPrice - stopLoss !== 0
+  ) {
     riskMultiple =
-      Math.round(((exitPrice - entryPrice) / (entryPrice - stopLoss)) * 100) /
-      100;
+      Math.round(
+        ((exitPriceAverage - entryPrice) / (entryPrice - stopLoss)) * 100,
+      ) / 100;
   }
 
   return {
@@ -52,6 +68,7 @@ export function computeTradeMetricsFromExecutions(
     profitLoss,
     profitLossPercent,
     riskMultiple,
+    isOpen,
   };
 }
 

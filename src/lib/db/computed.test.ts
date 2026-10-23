@@ -345,10 +345,12 @@ describe("computeTradeMetricsFromExecutions", () => {
     );
 
     expect(result.entryPrice).toBeCloseTo(100.67);
-    expect(result.exitPrice).toBe(0);
+    expect(result.exitPrice).toBeNull();
     expect(result.quantity).toBe(75);
     expect(result.entryTime).toBe(1000);
-    expect(result.exitTime).toBe(0);
+    expect(result.exitTime).toBeNull();
+    expect(result.isOpen).toBe(true);
+    expect(result.profitLoss).toBeNull();
   });
 
   it("handles sells only (closing leftover)", () => {
@@ -369,5 +371,129 @@ describe("computeTradeMetricsFromExecutions", () => {
     expect(result.exitPrice).toBe(105);
     expect(result.quantity).toBe(0);
     expect(result.exitTime).toBe(2000);
+  });
+});
+
+describe("computeTradeMetricsFromExecutions — open and partial positions", () => {
+  it("flags buys-only as open with null metrics", () => {
+    const result = computeTradeMetricsFromExecutions(
+      [
+        {
+          side: "buy",
+          price: 100,
+          quantity: 50,
+          commission: 1,
+          timestamp: 1000,
+        },
+      ],
+      98,
+    );
+
+    expect(result.isOpen).toBe(true);
+    expect(result.profitLoss).toBeNull();
+    expect(result.profitLossPercent).toBeNull();
+    expect(result.riskMultiple).toBeNull();
+    expect(result.exitPrice).toBeNull();
+    expect(result.exitTime).toBeNull();
+  });
+
+  it("partial close reports realized P&L on sold shares only", () => {
+    const result = computeTradeMetricsFromExecutions(
+      [
+        {
+          side: "buy",
+          price: 50,
+          quantity: 100,
+          commission: 0,
+          timestamp: 1000,
+        },
+        {
+          side: "sell",
+          price: 55,
+          quantity: 50,
+          commission: 0,
+          timestamp: 2000,
+        },
+      ],
+      48,
+    );
+
+    expect(result.isOpen).toBe(true);
+    expect(result.profitLoss).toBe(250);
+    expect(result.profitLossPercent).toBe(10);
+    expect(result.riskMultiple).toBe(2.5);
+    expect(result.quantity).toBe(100);
+    expect(result.entryPrice).toBe(50);
+    expect(result.exitPrice).toBe(55);
+  });
+
+  it("partial close subtracts commissions from realized P&L", () => {
+    const result = computeTradeMetricsFromExecutions(
+      [
+        {
+          side: "buy",
+          price: 50,
+          quantity: 100,
+          commission: 2,
+          timestamp: 1000,
+        },
+        {
+          side: "sell",
+          price: 55,
+          quantity: 50,
+          commission: 1,
+          timestamp: 2000,
+        },
+      ],
+      null,
+    );
+
+    expect(result.profitLoss).toBe(247);
+  });
+
+  it("sells-only yields null metrics, never NaN", () => {
+    const result = computeTradeMetricsFromExecutions(
+      [
+        {
+          side: "sell",
+          price: 55,
+          quantity: 50,
+          commission: 0,
+          timestamp: 1000,
+        },
+      ],
+      48,
+    );
+
+    expect(result.isOpen).toBe(false);
+    expect(result.profitLoss).toBeNull();
+    expect(result.profitLossPercent).toBeNull();
+    expect(result.riskMultiple).toBeNull();
+  });
+
+  it("flat trade keeps full-close math and isOpen false", () => {
+    const result = computeTradeMetricsFromExecutions(
+      [
+        {
+          side: "buy",
+          price: 100,
+          quantity: 50,
+          commission: 0.5,
+          timestamp: 1000,
+        },
+        {
+          side: "sell",
+          price: 105,
+          quantity: 50,
+          commission: 0.5,
+          timestamp: 2000,
+        },
+      ],
+      98,
+    );
+
+    expect(result.isOpen).toBe(false);
+    expect(result.profitLoss).toBe(249);
+    expect(result.riskMultiple).toBe(2.5);
   });
 });
