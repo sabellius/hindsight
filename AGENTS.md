@@ -54,7 +54,7 @@ All scripts live in `package.json`. Schema migrations: `pnpm db:generate
   direction only — design lives in the spec or the code; if the bug can't
   be shown as a failing test, add a one-line Repro under Problem
 - Merge from the main checkout with `git merge --no-ff`, dependency
-  order, atomic commits
+  order, atomic commits — then **push to origin immediately**
 - Commit trailer `Refs: HND-<n>` on the last line; ticket states move in
   YouTrack manually — commit messages never auto-resolve
 
