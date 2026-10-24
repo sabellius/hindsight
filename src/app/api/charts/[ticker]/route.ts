@@ -13,6 +13,9 @@ type AlpacaBar = {
   vw: number;
 };
 
+const CHART_PADDING_MILLISECONDS = 2 * 60 * 60 * 1000;
+const ALPACA_FETCH_TIMEOUT_MILLISECONDS = 8000;
+
 const INTERVAL_MAP: Record<string, string> = {
   "1min": "1Min",
   "5min": "5Min",
@@ -47,14 +50,18 @@ export async function GET(
 
   const timeframe = INTERVAL_MAP[rawInterval] || "5Min";
 
-  const paddingMs = 2 * 60 * 60 * 1000;
-  const start = new Date(Number(entryTime) - paddingMs).toISOString();
-  const end = new Date(Number(exitTime) + paddingMs).toISOString();
+  const start = new Date(
+    Number(entryTime) - CHART_PADDING_MILLISECONDS,
+  ).toISOString();
+  const end = new Date(
+    Number(exitTime) + CHART_PADDING_MILLISECONDS,
+  ).toISOString();
 
   const url = `${ALPACA_DATA_BASE_URL}/v2/stocks/${ticker}/bars?timeframe=${timeframe}&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&feed=iex&sort=asc`;
 
   try {
     const response = await fetch(url, {
+      signal: AbortSignal.timeout(ALPACA_FETCH_TIMEOUT_MILLISECONDS),
       headers: {
         "APCA-API-KEY-ID": apiKeyId,
         "APCA-API-SECRET-KEY": apiSecretKey,
