@@ -18,4 +18,7 @@ classification question is settled with a CPA.
 
 Lane rules: features this size run through spec-kit (`/speckit.specify` →
 `/speckit.plan` → `/speckit.tasks`, owner-format templates); small fixes
-are Lane-1 — ticket + reproducing test + fix, no ceremony.
+are Lane-1 — ticket + reproducing test + fix, no ceremony. At merge,
+plan.md and tasks.md are deleted (git history archives them); spec.md
+stays as the feature contract; lasting decisions become ADRs. The
+verifier agent reviews each branch before the owner merges.
