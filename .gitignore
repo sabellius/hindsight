@@ -52,3 +52,6 @@ stirling-data/
 
 # real broker exports (never commit)
 src/testing/fixtures/flex/raw/
+
+# raw broker exports (never commit)
+exports/

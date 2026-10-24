@@ -1,6 +1,6 @@
 # Tasks: flex-import
 
-**Input**: spec.md + plan.md · **Status**: Draft
+**Input**: spec.md + plan.md · **Status**: Approved (owner, 2026-10-24)
 **Rule**: every production module lands test-first — the failing-test task
 sits immediately before its implementation task.
 
