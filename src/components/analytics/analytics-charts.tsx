@@ -13,9 +13,10 @@ import {
   YAxis,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCurrency, formatPercent } from "@/lib/format";
 
 type AnalyticsData = Awaited<
-  ReturnType<typeof import("@/lib/analytics").getAnalyticsData>
+  ReturnType<typeof import("@/server/analytics").getAnalyticsData>
 >;
 
 interface AnalyticsChartsProps {
@@ -80,7 +81,7 @@ export function AnalyticsCharts({ data, days }: AnalyticsChartsProps) {
       <div className="grid grid-cols-4 gap-4">
         <MetricCard
           title="Win Rate"
-          value={data.totalTrades > 0 ? `${data.winRate.toFixed(1)}%` : "—"}
+          value={data.totalTrades > 0 ? formatPercent(data.winRate) : "—"}
         />
         <MetricCard
           title="Profit Factor"
@@ -88,12 +89,14 @@ export function AnalyticsCharts({ data, days }: AnalyticsChartsProps) {
         />
         <MetricCard
           title="Avg Winner"
-          value={data.avgWinner > 0 ? `$${data.avgWinner.toFixed(0)}` : "—"}
+          value={data.avgWinner > 0 ? formatCurrency(data.avgWinner, 0) : "—"}
           className="text-profit"
         />
         <MetricCard
           title="Avg Loser"
-          value={data.avgLoser > 0 ? `-$${data.avgLoser.toFixed(0)}` : "—"}
+          value={
+            data.avgLoser > 0 ? `-${formatCurrency(data.avgLoser, 0)}` : "—"
+          }
           className="text-loss"
         />
       </div>

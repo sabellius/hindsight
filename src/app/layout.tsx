@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/layout/app-shell";
-import { getActiveAccountId } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { accounts } from "@/lib/db/schema";
+import { getActiveAccountId } from "@/server/auth";
+import { db } from "@/server/db";
+import { accounts } from "@/server/db/schema";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   description:
     "Personal day trading journal for analyzing trades and building a repeatable edge",
 };
+
+export const dynamic = "force-dynamic";
 
 export default async function RootLayout({
   children,

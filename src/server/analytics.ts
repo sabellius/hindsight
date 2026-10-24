@@ -1,6 +1,6 @@
 import { desc, sql } from "drizzle-orm";
-import { db } from "@/lib/db";
-import { trades } from "@/lib/db/schema";
+import { db } from "@/server/db";
+import { trades } from "@/server/db/schema";
 
 /* v8 ignore start */
 export async function getAnalyticsData(days: number, accountId: number) {

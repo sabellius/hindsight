@@ -1,8 +1,8 @@
 // @vitest-environment node
 import { eq, sql } from "drizzle-orm";
 import { expect } from "vitest";
-import { addExecution } from "@/lib/db/add-execution";
-import { accounts, executions, trades } from "@/lib/db/schema";
+import { addExecution } from "@/server/db/add-execution";
+import { accounts, executions, trades } from "@/server/db/schema";
 import { test } from "@/testing/fixtures";
 
 const entryTime = new Date("2026-01-05T15:30:00Z");

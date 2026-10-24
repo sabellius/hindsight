@@ -2,9 +2,19 @@ import { desc, sql } from "drizzle-orm";
 import { EquityCurveChart } from "@/components/analytics/equity-curve-chart";
 import { TodayTradesTable } from "@/components/trades/today-trades-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getActiveAccountId } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { trades } from "@/lib/db/schema";
+import {
+  formatCurrency,
+  formatHeaderDate,
+  formatPercent,
+  formatRiskMultiple,
+  formatSignedCurrency,
+} from "@/lib/format";
+import { buildEquityCurve } from "@/server/analytics";
+import { getActiveAccountId } from "@/server/auth";
+import { db } from "@/server/db";
+import { trades } from "@/server/db/schema";
+
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const accountId = await getActiveAccountId();
@@ -45,12 +55,12 @@ export default async function HomePage() {
   );
   const last30AvgRisk =
     last30.filter((t) => t.riskMultiple != null).length > 0
-      ? (
+      ? formatRiskMultiple(
           last30
             .filter((t) => t.riskMultiple != null)
             .reduce((sum, t) => sum + (t.riskMultiple ?? 0), 0) /
-          last30.filter((t) => t.riskMultiple != null).length
-        ).toFixed(1)
+            last30.filter((t) => t.riskMultiple != null).length,
+        )
       : null;
 
   const streak = computeStreak(last30);
@@ -62,11 +72,7 @@ export default async function HomePage() {
       <div className="flex items-center justify-between">
         <h1 className="text-sm font-semibold text-foreground">Dashboard</h1>
         <span className="text-xs text-muted-foreground">
-          {new Date().toLocaleDateString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-          })}
+          {formatHeaderDate(new Date())}
         </span>
       </div>
 
@@ -90,8 +96,8 @@ export default async function HomePage() {
                   }`}
                 >
                   {todayTrades.length > 0
-                    ? `${isProfit ? "+" : ""}$${todayProfitLoss.toFixed(2)}`
-                    : "$0.00"}
+                    ? formatSignedCurrency(todayProfitLoss)
+                    : formatCurrency(0)}
                 </div>
                 {todayTrades.length > 0 &&
                   (() => {
@@ -105,14 +111,14 @@ export default async function HomePage() {
                     );
                     const percentReturn =
                       totalCost > 0
-                        ? ((totalProfitLoss / totalCost) * 100).toFixed(2)
-                        : "0.00";
+                        ? formatPercent((totalProfitLoss / totalCost) * 100, 2)
+                        : formatPercent(0, 2);
                     return (
                       <p
                         className={`mt-0.5 text-xs ${isProfit ? "text-profit" : "text-loss"}`}
                       >
                         {isProfit ? "+" : ""}
-                        {percentReturn}%
+                        {percentReturn}
                       </p>
                     );
                   })()}
@@ -164,7 +170,7 @@ export default async function HomePage() {
               </CardHeader>
               <CardContent>
                 <div className="text-lg font-bold text-foreground">
-                  {last30AvgRisk != null ? `${last30AvgRisk}R` : "—"}
+                  {last30AvgRisk != null ? last30AvgRisk : "—"}
                 </div>
                 <p className="mt-0.5 text-xs text-muted-foreground">30 days</p>
               </CardContent>
@@ -224,23 +230,4 @@ function computeStreak(tradeList: (typeof trades.$inferSelect)[]) {
   }
 
   return { count, type: firstIsWin ? "W" : "L" };
-}
-
-function buildEquityCurve(tradeList: (typeof trades.$inferSelect)[]) {
-  let cumulative = 0;
-  return [...tradeList]
-    .sort(
-      (a, b) =>
-        new Date(a.entryTime).getTime() - new Date(b.entryTime).getTime(),
-    )
-    .map((t) => {
-      cumulative += t.profitLoss ?? 0;
-      return {
-        date: new Date(t.entryTime).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        }),
-        value: Math.round(cumulative * 100) / 100,
-      };
-    });
 }

@@ -1,8 +1,8 @@
 // @vitest-environment node
 import { eq } from "drizzle-orm";
 import { expect } from "vitest";
-import { recomputeTradeMetrics } from "@/lib/db/recompute";
-import { accounts, executions, trades } from "@/lib/db/schema";
+import { recomputeTradeMetrics } from "@/server/db/recompute";
+import { accounts, executions, trades } from "@/server/db/schema";
 import { test } from "@/testing/fixtures";
 
 test("recomputes stored metrics from executions after a stop edit", ({
@@ -141,4 +141,9 @@ test("open trade stores null metrics, never fake losses", ({ db }) => {
   expect(updated?.profitLoss).toBeNull();
   expect(updated?.profitLossPercent).toBeNull();
   expect(updated?.riskMultiple).toBeNull();
+});
+
+test("returns cleanly for a nonexistent trade", ({ db }) => {
+  expect(() => recomputeTradeMetrics(db, 999999)).not.toThrow();
+  expect(db.select().from(trades).all()).toHaveLength(0);
 });

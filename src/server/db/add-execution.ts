@@ -1,6 +1,6 @@
-import type { AppDatabase } from "@/lib/db";
-import { recomputeTradeMetrics } from "@/lib/db/recompute";
-import { executions } from "@/lib/db/schema";
+import type { AppDatabase } from "@/server/db";
+import { recomputeTradeMetrics } from "@/server/db/recompute";
+import { executions } from "@/server/db/schema";
 
 type ExecutionInput = {
   side: "buy" | "sell";

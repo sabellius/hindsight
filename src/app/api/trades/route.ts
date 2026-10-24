@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { createTradeWithExecutions } from "@/lib/db/create-trade";
+import { db } from "@/server/db";
+import { createTradeWithExecutions } from "@/server/db/create-trade";
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();

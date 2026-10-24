@@ -42,7 +42,7 @@ network. Money-path libraries target 100% branch coverage; floors live in
 vitest.config.ts.
 
 ### VI. Schema discipline
-src/lib/db/schema.ts is the handwritten source of truth; drizzle/*.sql is
+src/server/db/schema.ts is the handwritten source of truth; drizzle/*.sql is
 generated history. A schema change and its generated migration land in the
 same commit. Never hand-edit generated SQL beyond journal-conflict
 resolution. Migrations that rename, drop, or destructively rewrite data

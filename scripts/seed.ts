@@ -1,4 +1,6 @@
 import Database from "better-sqlite3";
+import { computeTradeMetrics } from "@/lib/computed";
+import { formatCurrency, formatRiskMultiple, roundToCents } from "@/lib/format";
 
 const db = new Database("hindsight.db");
 
@@ -13,7 +15,19 @@ if (existing.count === 0) {
   db.prepare(
     "INSERT INTO accounts (name, type, created_at) VALUES (?, ?, ?)",
   ).run("Paper Account", "paper", Date.now());
-  console.log("Seeded 2 default accounts");
+  db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)").run(
+    "risk_capital",
+    "27000",
+  );
+  db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)").run(
+    "risk_per_trade_percent",
+    "1",
+  );
+  db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)").run(
+    "max_daily_loss_percent",
+    "3",
+  );
+  console.log("Seeded 2 default accounts and risk parameters");
 } else {
   console.log("Accounts already exist, skipping seed");
 }
@@ -344,8 +358,8 @@ if (tradeCount.count === 0) {
     (rows: { trade: unknown[]; executions: unknown[][] }[]) => {
       for (const row of rows) {
         const tradeId = insertTrade.run(...row.trade).lastInsertRowid;
-        for (const exec of row.executions) {
-          insertExecution.run(tradeId, ...exec);
+        for (const execution of row.executions) {
+          insertExecution.run(tradeId, ...execution);
         }
       }
     },
@@ -360,14 +374,20 @@ if (tradeCount.count === 0) {
     );
     const exitMs = entryMs + trade.durationHours * hour;
 
-    const profitLoss =
-      (trade.exitPrice - trade.entryPrice) * trade.quantity - trade.commission;
-    const profitLossPercent =
-      ((trade.exitPrice - trade.entryPrice) / trade.entryPrice) * 100;
-    const riskPerShare = Math.abs(trade.entryPrice - trade.stopLoss);
-    const risk = riskPerShare * trade.quantity;
-    const riskMultiple = risk > 0 ? profitLoss / risk : 0;
-    const metadata = deriveMetadata(profitLoss, riskMultiple, trade.strategyId);
+    const { profitLoss, profitLossPercent, riskMultiple } = computeTradeMetrics(
+      {
+        entryPrice: trade.entryPrice,
+        exitPrice: trade.exitPrice,
+        quantity: trade.quantity,
+        commission: trade.commission,
+        stopLoss: trade.stopLoss,
+      },
+    );
+    const metadata = deriveMetadata(
+      profitLoss,
+      riskMultiple ?? 0,
+      trade.strategyId,
+    );
 
     seedRows.push({
       trade: [
@@ -383,9 +403,9 @@ if (tradeCount.count === 0) {
         trade.stopLoss,
         trade.target,
         trade.commission,
-        Math.round(profitLoss * 100) / 100,
-        Math.round(profitLossPercent * 100) / 100,
-        Math.round(riskMultiple * 100) / 100,
+        roundToCents(profitLoss),
+        roundToCents(profitLossPercent),
+        roundToCents(riskMultiple ?? 0),
         metadata.conviction,
         metadata.processGrade,
         metadata.notes,
@@ -406,7 +426,7 @@ if (tradeCount.count === 0) {
 
     const isWin = profitLoss >= 0;
     console.log(
-      `  ${trade.ticker}: entry=$${trade.entryPrice.toFixed(2)} exit=$${trade.exitPrice.toFixed(2)} qty=${trade.quantity} (${isWin ? "win" : "loss"}, ${profitLoss >= 0 ? "+" : ""}$${profitLoss.toFixed(2)}, ${riskMultiple.toFixed(1)}R)`,
+      `  ${trade.ticker}: entry=${formatCurrency(trade.entryPrice)} exit=${formatCurrency(trade.exitPrice)} quantity=${trade.quantity} (${isWin ? "win" : "loss"}, ${profitLoss >= 0 ? "+" : ""}${formatCurrency(profitLoss)}, ${formatRiskMultiple(riskMultiple ?? 0)})`,
     );
   }
 

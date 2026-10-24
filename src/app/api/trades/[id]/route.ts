@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { recomputeTrade } from "@/lib/db/recompute";
-import { trades } from "@/lib/db/schema";
+import { db } from "@/server/db";
+import { recomputeTradeMetrics } from "@/server/db/recompute";
+import { trades } from "@/server/db/schema";
 
 export async function PATCH(
   request: NextRequest,
@@ -24,7 +24,7 @@ export async function PATCH(
     })
     .where(eq(trades.id, Number(id)));
 
-  recomputeTrade(Number(id));
+  recomputeTradeMetrics(db, Number(id));
 
   return NextResponse.json({ ok: true });
 }

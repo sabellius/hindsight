@@ -1,8 +1,10 @@
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { TradeDetail } from "@/components/trades/trade-detail";
-import { db } from "@/lib/db";
-import { executions, trades } from "@/lib/db/schema";
+import { db } from "@/server/db";
+import { executions, trades } from "@/server/db/schema";
+
+export const dynamic = "force-dynamic";
 
 export default async function TradeDetailPage({
   params,

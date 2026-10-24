@@ -1,6 +1,6 @@
 # Database Rules
 
-- `src/lib/db/schema.ts` is the handwritten source of truth and the query
+- `src/server/db/schema.ts` is the handwritten source of truth and the query
   API; `drizzle/*.sql` is generated history. A schema change and its
   generated migration land in the same commit. Never edit generated SQL
   beyond journal-conflict resolution.

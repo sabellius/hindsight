@@ -11,6 +11,7 @@ import {
   type Time,
 } from "lightweight-charts";
 import { useEffect, useRef } from "react";
+import { formatCurrency } from "@/lib/format";
 
 type Candle = {
   time: number;
@@ -108,14 +109,14 @@ export function TradeChart({
         position: "belowBar",
         color: "#22C55E",
         shape: "arrowUp",
-        text: `Entry $${entryPrice.toFixed(2)}`,
+        text: `Entry ${formatCurrency(entryPrice)}`,
       },
       {
         time: candles[exitIdx].time as Time,
         position: exitPrice >= entryPrice ? "aboveBar" : "belowBar",
         color: exitPrice >= entryPrice ? "#22C55E" : "#EF4444",
         shape: exitPrice >= entryPrice ? "arrowUp" : "arrowDown",
-        text: `Exit $${exitPrice.toFixed(2)}`,
+        text: `Exit ${formatCurrency(exitPrice)}`,
       },
     ];
     createSeriesMarkers(series, markers);

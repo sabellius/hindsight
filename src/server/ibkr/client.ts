@@ -1,3 +1,5 @@
+import "server-only";
+
 const IBKR_GATEWAY_URL =
   process.env.IBKR_GATEWAY_URL ?? "https://localhost:5000";
 
@@ -32,19 +34,4 @@ export async function checkConnection(): Promise<{
   } catch {
     return { connected: false, authenticated: false };
   }
-}
-
-export async function getOpenTrades() {
-  const data = await ibkrFetch("/iserver/account/trades");
-  return data ?? [];
-}
-
-export async function getPositions(accountId: string) {
-  const data = await ibkrFetch(`/portfolio/${accountId}/positions`);
-  return data ?? [];
-}
-
-export async function getOrders() {
-  const data = await ibkrFetch("/iserver/account/orders");
-  return data ?? [];
 }

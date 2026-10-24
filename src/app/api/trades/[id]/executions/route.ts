@@ -1,9 +1,9 @@
 import { and, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { addExecution } from "@/lib/db/add-execution";
-import { recomputeTrade } from "@/lib/db/recompute";
-import { executions } from "@/lib/db/schema";
+import { db } from "@/server/db";
+import { addExecution } from "@/server/db/add-execution";
+import { recomputeTradeMetrics } from "@/server/db/recompute";
+import { executions } from "@/server/db/schema";
 
 export async function POST(
   request: NextRequest,
@@ -44,7 +44,7 @@ export async function PATCH(
     })
     .where(eq(executions.id, executionId));
 
-  recomputeTrade(tradeId);
+  recomputeTradeMetrics(db, tradeId);
   return NextResponse.json({ ok: true });
 }
 
@@ -63,6 +63,6 @@ export async function DELETE(
       and(eq(executions.id, executionId), eq(executions.tradeId, tradeId)),
     );
 
-  recomputeTrade(tradeId);
+  recomputeTradeMetrics(db, tradeId);
   return NextResponse.json({ ok: true });
 }

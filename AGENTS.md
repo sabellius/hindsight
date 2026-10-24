@@ -23,7 +23,7 @@ All scripts live in `package.json`. Schema migrations: `pnpm db:generate
 
 ## Area Rules (read before working there)
 
-- `src/lib/db/AGENTS.md` — schema truth, migrations, sync-transaction trap
+- `src/server/db/AGENTS.md` — schema truth, migrations, sync-transaction trap
 - `src/testing/AGENTS.md` — test harness, DB fixtures, flake rules
 - Structure and relationships: ask codegraph (`codegraph
   explore|query|node|context`, or the MCP server in `.pi/mcp.json`) —

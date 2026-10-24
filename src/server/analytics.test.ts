@@ -8,8 +8,8 @@ import {
   groupByDayOfWeek,
   groupByHour,
   groupByStrategy,
-} from "@/lib/analytics";
-import type { trades } from "@/lib/db/schema";
+} from "@/server/analytics";
+import type { trades } from "@/server/db/schema";
 
 type TradeRow = (typeof trades.$inferSelect)[];
 type Trade = TradeRow[number];

@@ -2,9 +2,20 @@ import { eq, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { SessionForm } from "@/components/sessions/session-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getActiveAccountId } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { sessions, trades } from "@/lib/db/schema";
+import {
+  formatCurrency,
+  formatLongDate,
+  formatSignedCurrency,
+} from "@/lib/format";
+import { getActiveAccountId } from "@/server/auth";
+import { db } from "@/server/db";
+import { sessions, trades } from "@/server/db/schema";
+import {
+  getRiskParameters,
+  maxDailyLossAmount,
+} from "@/server/risk-parameters";
+
+export const dynamic = "force-dynamic";
 
 export default async function SessionDetailPage({
   params,
@@ -22,6 +33,11 @@ export default async function SessionDetailPage({
 
   if (!session) notFound();
 
+  const riskParameters = getRiskParameters(db);
+  const riskLimits = {
+    perTrade: `${riskParameters.riskPerTradePercent}%`,
+    dailyLoss: formatCurrency(maxDailyLossAmount(riskParameters), 0),
+  };
   const dayTrades = await db
     .select()
     .from(trades)
@@ -42,12 +58,7 @@ export default async function SessionDetailPage({
     <div className="flex flex-col gap-6 max-w-2xl">
       <div className="flex items-center justify-between">
         <h1 className="text-sm font-semibold text-foreground">
-          Session —{" "}
-          {new Date(`${session.date}T00:00:00`).toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          })}
+          Session — {formatLongDate(`${session.date}T00:00:00`)}
         </h1>
         <div
           className={`text-sm font-bold tabular-nums ${
@@ -59,7 +70,7 @@ export default async function SessionDetailPage({
           }`}
         >
           {dayTrades.length > 0
-            ? `${isProfit ? "+" : ""}$${dayProfitLoss.toFixed(2)}`
+            ? formatSignedCurrency(dayProfitLoss)
             : "No trades"}
         </div>
       </div>
@@ -87,14 +98,18 @@ export default async function SessionDetailPage({
               <div
                 className={`font-semibold ${isProfit ? "text-profit" : "text-loss"}`}
               >
-                {isProfit ? "+" : ""}${dayProfitLoss.toFixed(2)}
+                {formatSignedCurrency(dayProfitLoss)}
               </div>
             </div>
           </CardContent>
         </Card>
       )}
 
-      <SessionForm accountId={accountId} session={session} />
+      <SessionForm
+        accountId={accountId}
+        riskLimits={riskLimits}
+        session={session}
+      />
     </div>
   );
 }

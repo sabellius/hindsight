@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   computeTradeMetrics,
   computeTradeMetricsFromExecutions,
-} from "@/lib/db/computed";
+} from "@/lib/computed";
 
 describe("computeTradeMetrics", () => {
   it("computes profit for a winning long trade", () => {

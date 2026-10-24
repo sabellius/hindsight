@@ -1,10 +1,10 @@
 import { eq } from "drizzle-orm";
-import { type AppDatabase, db } from "@/lib/db";
 import {
   computeTradeMetrics,
   computeTradeMetricsFromExecutions,
-} from "@/lib/db/computed";
-import { executions, trades } from "@/lib/db/schema";
+} from "@/lib/computed";
+import type { AppDatabase } from "@/server/db";
+import { executions, trades } from "@/server/db/schema";
 
 type Queryable = Pick<AppDatabase, "select" | "insert" | "update">;
 
@@ -51,8 +51,4 @@ export function recomputeTradeMetrics(database: Queryable, tradeId: number) {
     })
     .where(eq(trades.id, tradeId))
     .run();
-}
-
-export function recomputeTrade(tradeId: number) {
-  recomputeTradeMetrics(db, tradeId);
 }

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { sessions } from "@/lib/db/schema";
+import { db } from "@/server/db";
+import { sessions } from "@/server/db/schema";
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();

@@ -1,6 +1,8 @@
+import "server-only";
+
 import { cookies } from "next/headers";
-import { db } from "@/lib/db";
-import { accounts } from "@/lib/db/schema";
+import { db } from "@/server/db";
+import { accounts } from "@/server/db/schema";
 
 export async function getActiveAccountId(): Promise<number> {
   const cookieStore = await cookies();

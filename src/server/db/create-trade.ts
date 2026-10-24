@@ -1,6 +1,6 @@
-import type { AppDatabase } from "@/lib/db";
-import { computeTradeMetrics } from "@/lib/db/computed";
-import { executions, trades } from "@/lib/db/schema";
+import { computeTradeMetrics } from "@/lib/computed";
+import type { AppDatabase } from "@/server/db";
+import { executions, trades } from "@/server/db/schema";
 
 type CreateTradeInput = {
   accountId: number;

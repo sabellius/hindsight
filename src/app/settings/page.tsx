@@ -1,10 +1,19 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { db } from "@/lib/db";
-import { accounts } from "@/lib/db/schema";
+import { formatCurrency } from "@/lib/format";
+import { db } from "@/server/db";
+import { accounts } from "@/server/db/schema";
+import {
+  getRiskParameters,
+  maxDailyLossAmount,
+  riskPerTradeAmount,
+} from "@/server/risk-parameters";
+
+export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
   const allAccounts = await db.select().from(accounts);
+  const riskParameters = getRiskParameters(db);
 
   return (
     <div className="flex flex-col gap-6 max-w-2xl">
@@ -84,15 +93,23 @@ export default async function SettingsPage() {
         <CardContent className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex flex-col">
             <span className="text-muted-foreground">Account Size</span>
-            <span className="font-medium">$27,000</span>
+            <span className="font-medium">
+              {formatCurrency(riskParameters.capital, 0)}
+            </span>
           </div>
           <div className="flex flex-col">
             <span className="text-muted-foreground">Max Risk Per Trade</span>
-            <span className="font-medium">1% ($270)</span>
+            <span className="font-medium">
+              {riskParameters.riskPerTradePercent}% (
+              {formatCurrency(riskPerTradeAmount(riskParameters), 0)})
+            </span>
           </div>
           <div className="flex flex-col">
             <span className="text-muted-foreground">Max Daily Loss</span>
-            <span className="font-medium">3% ($810)</span>
+            <span className="font-medium">
+              {riskParameters.maxDailyLossPercent}% (
+              {formatCurrency(maxDailyLossAmount(riskParameters), 0)})
+            </span>
           </div>
           <div className="flex flex-col">
             <span className="text-muted-foreground">Price Range</span>
