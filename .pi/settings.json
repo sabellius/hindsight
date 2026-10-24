@@ -1,0 +1,10 @@
+{
+  "subagents": {
+    "defaultModel": "zai/glm-5.3-flash:medium",
+    "agentOverrides": {
+      "planner": { "model": "zai/glm-5.3", "thinking": "high" },
+      "writer": { "model": "zai/glm-5.3", "thinking": "medium" },
+      "verifier": { "model": "zai/glm-5.3", "thinking": "high" }
+    }
+  }
+}
