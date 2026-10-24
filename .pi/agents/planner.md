@@ -33,3 +33,6 @@ the repo's owner-format templates. You do not write application code.
   invent scope.
 - Commit drafts on the feature branch with `Refs: HND-<n>`; you never
   merge or push.
+- After tasks are approved, propose the slice → ticket mapping (each
+  slice becomes a YouTrack subticket of the feature epic, enabling
+  one-ticket-one-worktree); the owner creates the subtickets.
