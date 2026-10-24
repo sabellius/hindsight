@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency, formatPercent } from "@/lib/format";
 
 type AnalyticsData = Awaited<
-  ReturnType<typeof import("@/lib/analytics").getAnalyticsData>
+  ReturnType<typeof import("@/server/analytics").getAnalyticsData>
 >;
 
 interface AnalyticsChartsProps {
