@@ -47,8 +47,13 @@ All scripts live in `package.json`. Schema migrations: `pnpm db:generate
 ## Tickets & Git (YouTrack `HND`)
 
 - No ticket, no code. One ticket = one branch = one worktree at
-  `~/dev/worktrees/HND-<n>-<slug>`, created from `main`; never commit to
-  `main` directly
+  `~/dev/worktrees/HND-<n>-<slug>`, created from `main`
+- Small docs tweaks may commit directly on `main`; anything with logic
+  rides a branch merged `--no-ff`
+- Feature contracts (spec, plan, tasks) merge to `main` as their own
+  node before slicing, **frozen at approval** — task checkboxes are
+  never updated in git; progress lives in YouTrack stages, `Refs`
+  trailers, and writer reports
 - Ticket format: **Problem → Fix → Example → Done when**, one screen max,
   plain words, real numbers in the Example (see HND-29); Fix states
   direction only — design lives in the spec or the code; if the bug can't
