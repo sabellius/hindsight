@@ -1,6 +1,6 @@
 # Plan: flex-import
 
-**Spec**: `specs/flex-import/spec.md` · **Created**: 2026-10-24 · **Status**: Draft
+**Spec**: `specs/flex-import/spec.md` · **Created**: 2026-10-24 · **Status**: Approved (owner, 2026-10-24 — G1 + G2)
 
 ## Approach
 
