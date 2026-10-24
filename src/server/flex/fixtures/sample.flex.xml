@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlexQueryResponse queryName="Hindsight - Trades and Cash" type="AF">
+<FlexStatements count="1">
+<FlexStatement accountId="U7654321" fromDate="20240102" toDate="20240131" period="LastBusinessMonth" whenGenerated="20240202;161000">
+<Trades>
+<Order accountId="U7654321" orderId="1000001234" dateTime="20240102;154500" tradeDate="20240102" tradeTime="15:45:00" buySell="B" quantity="0.3712" tradePrice="185.50" netCash="-68.89" currency="USD" symbol="AAPL" ticker="AAPL" assetCategory="STK" ibCommission="1.00" ibCommissionCurrency="USD" exchange="NASDAQ">
+<Trade accountId="U7654321" tradeId="4001111" executionId="0000e1f2.63f2a1cd.01.01" transactionType="Trade" tradeDate="20240102" tradeTime="15:45:00" buySell="B" quantity="0.3712" tradePrice="185.50" netCash="-68.89" currency="USD" symbol="AAPL" ticker="AAPL" assetCategory="STK" ibCommission="1.00" ibCommissionCurrency="USD" exchange="NASDAQ" isin="US0378331005" conid="265598"/>
+</Order>
+<Order accountId="U7654321" orderId="1000001288" dateTime="20240104;160200" tradeDate="20240104" tradeTime="16:02:00" buySell="S" quantity="0.3712" tradePrice="187.20" netCash="69.53" currency="USD" symbol="AAPL" ticker="AAPL" assetCategory="STK" ibCommission="1.00" ibCommissionCurrency="USD" exchange="NASDAQ">
+<Trade accountId="U7654321" tradeId="4001199" executionId="0000e1f2.63f2a1cd.02.01" transactionType="Trade" tradeDate="20240104" tradeTime="16:02:00" buySell="S" quantity="0.3712" tradePrice="187.20" netCash="69.53" currency="USD" symbol="AAPL" ticker="AAPL" assetCategory="STK" ibCommission="1.00" ibCommissionCurrency="USD" exchange="NASDAQ" isin="US0378331005" conid="265598"/>
+</Order>
+<Order accountId="U7654321" orderId="1000001400" dateTime="20240109;143000" tradeDate="20240109" tradeTime="14:30:00" buySell="B" quantity="2" tradePrice="185.10" netCash="-370.45" currency="EUR" symbol="ASML" ticker="ASML" assetCategory="STK" ibCommission="3.50" ibCommissionCurrency="EUR" exchange="AEB">
+<Trade accountId="U7654321" tradeId="4001250" executionId="0000e1f2.63f2a1cd.03.01" transactionType="Trade" tradeDate="20240109" tradeTime="14:30:00" buySell="B" quantity="2" tradePrice="185.10" netCash="-370.45" currency="EUR" symbol="ASML" ticker="ASML" assetCategory="STK" ibCommission="3.50" ibCommissionCurrency="EUR" exchange="AEB" isin="NL0010273215" conid="51866604"/>
+</Order>
+</Trades>
+<CashTransactions>
+<CashTransaction accountId="U7654321" type="Dividends" currency="USD" amount="0.25" symbol="AAPL" description="AAPL (US0378331005) Cash Dividend USD 0.25/Share (Ordinary Dividend)" dateTime="20240118;000000" tradeDate="20240118" tradeTime="00:00:00"/>
+<CashTransaction accountId="U7654321" type="Withholding Tax" currency="USD" amount="-0.05" symbol="AAPL" description="AAPL (US0378331005) Payment in Lieu of Dividend" dateTime="20240118;000000" tradeDate="20240118" tradeTime="00:00:00"/>
+<CashTransaction accountId="U7654321" type="Deposits/Withdrawals" currency="USD" amount="5000.00" symbol="" description="Cash deposit" dateTime="20240102;090000" tradeDate="20240102" tradeTime="09:00:00"/>
+<CashTransaction accountId="U7654321" type="Broker Interest Received" currency="EUR" amount="1.23" symbol="" description="Interest paid on balances above threshold" dateTime="20240131;000000" tradeDate="20240131" tradeTime="00:00:00"/>
+</CashTransactions>
+</FlexStatement>
+</FlexStatements>
+</FlexQueryResponse>
