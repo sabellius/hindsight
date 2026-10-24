@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { expect } from "vitest";
-import { accounts, trades } from "@/lib/db/schema";
+import { accounts, trades } from "@/server/db/schema";
 import { test } from "./fixtures";
 
 test("inserts are visible within the test", async ({ db }) => {
