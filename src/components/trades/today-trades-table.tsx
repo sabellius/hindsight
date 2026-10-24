@@ -9,6 +9,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  formatRiskMultiple,
+  formatSignedCurrency,
+  formatTime,
+} from "@/lib/format";
 
 type TradeRow = {
   id: number;
@@ -76,20 +81,18 @@ export function TodayTradesTable({ trades }: { trades: TradeRow[] }) {
                 className={`text-right tabular-nums font-semibold ${isProfit ? "text-profit" : "text-loss"}`}
               >
                 {trade.profitLoss != null
-                  ? `${isProfit ? "+" : ""}$${trade.profitLoss.toFixed(2)}`
+                  ? formatSignedCurrency(trade.profitLoss)
                   : "—"}
               </TableCell>
               <TableCell
                 className={`text-right tabular-nums ${isProfit ? "text-profit" : "text-loss"}`}
               >
-                {trade.riskMultiple != null ? `${trade.riskMultiple}R` : "—"}
+                {trade.riskMultiple != null
+                  ? formatRiskMultiple(trade.riskMultiple)
+                  : "—"}
               </TableCell>
               <TableCell className="text-right text-muted-foreground">
-                {new Date(trade.entryTime).toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                })}
+                {formatTime(trade.entryTime)}
               </TableCell>
             </TableRow>
           );

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getActiveAccountId } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { sessions, trades } from "@/lib/db/schema";
+import { formatLongDate, formatSignedCurrency } from "@/lib/format";
 
 export default async function SessionDetailPage({
   params,
@@ -42,12 +43,7 @@ export default async function SessionDetailPage({
     <div className="flex flex-col gap-6 max-w-2xl">
       <div className="flex items-center justify-between">
         <h1 className="text-sm font-semibold text-foreground">
-          Session —{" "}
-          {new Date(`${session.date}T00:00:00`).toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          })}
+          Session — {formatLongDate(`${session.date}T00:00:00`)}
         </h1>
         <div
           className={`text-sm font-bold tabular-nums ${
@@ -59,7 +55,7 @@ export default async function SessionDetailPage({
           }`}
         >
           {dayTrades.length > 0
-            ? `${isProfit ? "+" : ""}$${dayProfitLoss.toFixed(2)}`
+            ? formatSignedCurrency(dayProfitLoss)
             : "No trades"}
         </div>
       </div>
@@ -87,7 +83,7 @@ export default async function SessionDetailPage({
               <div
                 className={`font-semibold ${isProfit ? "text-profit" : "text-loss"}`}
               >
-                {isProfit ? "+" : ""}${dayProfitLoss.toFixed(2)}
+                {formatSignedCurrency(dayProfitLoss)}
               </div>
             </div>
           </CardContent>

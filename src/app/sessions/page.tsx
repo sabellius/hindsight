@@ -4,6 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getActiveAccountId } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { sessions, trades } from "@/lib/db/schema";
+import {
+  formatShortDate,
+  formatSignedCurrency,
+  formatWeekday,
+} from "@/lib/format";
 
 export default async function SessionsPage() {
   const accountId = await getActiveAccountId();
@@ -52,8 +57,8 @@ export default async function SessionsPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {allSessions.map((session) => {
-            const pnl = dailyPnl.get(session.date) ?? 0;
-            const isProfit = pnl >= 0;
+            const profitLoss = dailyPnl.get(session.date) ?? 0;
+            const isProfit = profitLoss >= 0;
             const scorecardItems = [
               session.followedRiskRules,
               session.waitedForSetups,
@@ -68,19 +73,10 @@ export default async function SessionsPage() {
                   <CardContent className="flex items-center gap-6 py-4">
                     <div className="w-24 shrink-0">
                       <div className="text-sm font-semibold text-foreground">
-                        {new Date(
-                          `${session.date}T00:00:00`,
-                        ).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
+                        {formatShortDate(`${session.date}T00:00:00`)}
                       </div>
                       <div className="text-[10px] text-muted-foreground">
-                        {new Date(
-                          `${session.date}T00:00:00`,
-                        ).toLocaleDateString("en-US", {
-                          weekday: "short",
-                        })}
+                        {formatWeekday(`${session.date}T00:00:00`)}
                       </div>
                     </div>
 
@@ -119,15 +115,15 @@ export default async function SessionsPage() {
                     <div className="ml-auto text-right">
                       <div
                         className={`text-sm font-semibold tabular-nums ${
-                          pnl !== 0
+                          profitLoss !== 0
                             ? isProfit
                               ? "text-profit"
                               : "text-loss"
                             : "text-foreground"
                         }`}
                       >
-                        {pnl !== 0
-                          ? `${isProfit ? "+" : ""}$${pnl.toFixed(2)}`
+                        {profitLoss !== 0
+                          ? formatSignedCurrency(profitLoss)
                           : "—"}
                       </div>
                     </div>
