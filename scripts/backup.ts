@@ -1,11 +1,12 @@
-import { execSync } from "node:child_process";
 import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import Database from "better-sqlite3";
+import { backupScreenshots, pruneBackups } from "@/lib/backup";
 
 const BACKUP_DIR = "data/backups";
 const DB_PATH = "hindsight.db";
 const TIMESTAMP = new Date().toISOString().replace(/[:.]/g, "-");
+const MAX_BACKUPS = 30;
 
 function main() {
   if (!existsSync(DB_PATH)) {
@@ -17,43 +18,32 @@ function main() {
     mkdirSync(BACKUP_DIR, { recursive: true });
   }
 
-  const db = new Database(DB_PATH, { readonly: true });
+  const database = new Database(DB_PATH, { readonly: true });
   const backupPath = join(BACKUP_DIR, `hindsight-${TIMESTAMP}.db`);
-  db.backup(backupPath)
+
+  database
+    .backup(backupPath)
     .then(() => {
-      db.close();
+      database.close();
       console.log(`Database backed up to ${backupPath}`);
 
-      if (existsSync("data/screenshots")) {
-        const screenshotsBackup = join(BACKUP_DIR, `screenshots-${TIMESTAMP}`);
-        mkdirSync(screenshotsBackup, { recursive: true });
-        try {
-          execSync(`cp -r data/screenshots/* ${screenshotsBackup}/`);
-          console.log(`Screenshots backed up to ${screenshotsBackup}`);
-        } catch {
-          console.log("No screenshots to backup");
-        }
+      const screenshots = backupScreenshots(
+        "data/screenshots",
+        join(BACKUP_DIR, `screenshots-${TIMESTAMP}`),
+      );
+      if (screenshots === "copied") {
+        console.log("Screenshots backed up");
       }
 
-      const backups = execSync(`ls -t ${BACKUP_DIR}/hindsight-*.db 2>/dev/null`)
-        .toString()
-        .trim()
-        .split("\n")
-        .filter(Boolean);
-
-      const MAX_BACKUPS = 30;
-      if (backups.length > MAX_BACKUPS) {
-        const toDelete = backups.slice(MAX_BACKUPS);
-        for (const f of toDelete) {
-          execSync(`rm -f "${f}"`);
-        }
+      const pruned = pruneBackups(BACKUP_DIR, MAX_BACKUPS);
+      if (pruned.length > 0) {
         console.log(
-          `Cleaned up ${toDelete.length} old backups (keeping last ${MAX_BACKUPS})`,
+          `Pruned ${pruned.length} old backup artifacts (keeping last ${MAX_BACKUPS})`,
         );
       }
     })
-    .catch((err) => {
-      db.close();
+    .catch((err: unknown) => {
+      database.close();
       console.error("Backup failed:", err);
       process.exit(1);
     });
