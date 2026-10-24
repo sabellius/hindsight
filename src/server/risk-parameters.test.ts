@@ -1,5 +1,3 @@
-// @vitest-environment node
-
 import { expect } from "vitest";
 import { settings } from "@/server/db/schema";
 import {
