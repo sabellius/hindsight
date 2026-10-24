@@ -35,18 +35,3 @@ export async function checkConnection(): Promise<{
     return { connected: false, authenticated: false };
   }
 }
-
-export async function getOpenTrades() {
-  const data = await ibkrFetch("/iserver/account/trades");
-  return data ?? [];
-}
-
-export async function getPositions(accountId: string) {
-  const data = await ibkrFetch(`/portfolio/${accountId}/positions`);
-  return data ?? [];
-}
-
-export async function getOrders() {
-  const data = await ibkrFetch("/iserver/account/orders");
-  return data ?? [];
-}
