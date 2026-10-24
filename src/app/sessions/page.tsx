@@ -1,14 +1,16 @@
 import { desc, eq } from "drizzle-orm";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { getActiveAccountId } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { sessions, trades } from "@/lib/db/schema";
 import {
   formatShortDate,
   formatSignedCurrency,
   formatWeekday,
 } from "@/lib/format";
+import { getActiveAccountId } from "@/server/auth";
+import { db } from "@/server/db";
+import { sessions, trades } from "@/server/db/schema";
+
+export const dynamic = "force-dynamic";
 
 export default async function SessionsPage() {
   const accountId = await getActiveAccountId();

@@ -1,7 +1,9 @@
 import { eq } from "drizzle-orm";
 import { TradeForm } from "@/components/trades/trade-form";
-import { db } from "@/lib/db";
-import { accounts } from "@/lib/db/schema";
+import { db } from "@/server/db";
+import { accounts } from "@/server/db/schema";
+
+export const dynamic = "force-dynamic";
 
 export default async function NewTradePage() {
   const defaultAccount = await db.query.accounts.findFirst({

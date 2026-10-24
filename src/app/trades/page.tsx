@@ -1,8 +1,10 @@
 import { desc, eq } from "drizzle-orm";
 import { TradeListTable } from "@/components/trades/trade-list-table";
-import { getActiveAccountId } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { trades } from "@/lib/db/schema";
+import { getActiveAccountId } from "@/server/auth";
+import { db } from "@/server/db";
+import { trades } from "@/server/db/schema";
+
+export const dynamic = "force-dynamic";
 
 export default async function TradesPage({
   searchParams,

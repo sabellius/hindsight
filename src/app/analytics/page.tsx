@@ -1,6 +1,8 @@
 import { AnalyticsCharts } from "@/components/analytics/analytics-charts";
-import { getAnalyticsData } from "@/lib/analytics";
-import { getActiveAccountId } from "@/lib/auth";
+import { getAnalyticsData } from "@/server/analytics";
+import { getActiveAccountId } from "@/server/auth";
+
+export const dynamic = "force-dynamic";
 
 export default async function AnalyticsPage({
   searchParams,

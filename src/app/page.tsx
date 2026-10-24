@@ -2,10 +2,6 @@ import { desc, sql } from "drizzle-orm";
 import { EquityCurveChart } from "@/components/analytics/equity-curve-chart";
 import { TodayTradesTable } from "@/components/trades/today-trades-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { buildEquityCurve } from "@/lib/analytics";
-import { getActiveAccountId } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { trades } from "@/lib/db/schema";
 import {
   formatCurrency,
   formatHeaderDate,
@@ -13,6 +9,12 @@ import {
   formatRiskMultiple,
   formatSignedCurrency,
 } from "@/lib/format";
+import { buildEquityCurve } from "@/server/analytics";
+import { getActiveAccountId } from "@/server/auth";
+import { db } from "@/server/db";
+import { trades } from "@/server/db/schema";
+
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const accountId = await getActiveAccountId();

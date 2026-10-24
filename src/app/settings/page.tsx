@@ -1,7 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { db } from "@/lib/db";
-import { accounts } from "@/lib/db/schema";
+import { db } from "@/server/db";
+import { accounts } from "@/server/db/schema";
+
+export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
   const allAccounts = await db.select().from(accounts);

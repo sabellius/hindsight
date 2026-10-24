@@ -2,10 +2,12 @@ import { eq, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { SessionForm } from "@/components/sessions/session-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getActiveAccountId } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { sessions, trades } from "@/lib/db/schema";
 import { formatLongDate, formatSignedCurrency } from "@/lib/format";
+import { getActiveAccountId } from "@/server/auth";
+import { db } from "@/server/db";
+import { sessions, trades } from "@/server/db/schema";
+
+export const dynamic = "force-dynamic";
 
 export default async function SessionDetailPage({
   params,
