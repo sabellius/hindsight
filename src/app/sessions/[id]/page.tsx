@@ -2,10 +2,18 @@ import { eq, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { SessionForm } from "@/components/sessions/session-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatLongDate, formatSignedCurrency } from "@/lib/format";
+import {
+  formatCurrency,
+  formatLongDate,
+  formatSignedCurrency,
+} from "@/lib/format";
 import { getActiveAccountId } from "@/server/auth";
 import { db } from "@/server/db";
 import { sessions, trades } from "@/server/db/schema";
+import {
+  getRiskParameters,
+  maxDailyLossAmount,
+} from "@/server/risk-parameters";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +33,11 @@ export default async function SessionDetailPage({
 
   if (!session) notFound();
 
+  const riskParameters = getRiskParameters(db);
+  const riskLimits = {
+    perTrade: `${riskParameters.riskPerTradePercent}%`,
+    dailyLoss: formatCurrency(maxDailyLossAmount(riskParameters), 0),
+  };
   const dayTrades = await db
     .select()
     .from(trades)
@@ -92,7 +105,11 @@ export default async function SessionDetailPage({
         </Card>
       )}
 
-      <SessionForm accountId={accountId} session={session} />
+      <SessionForm
+        accountId={accountId}
+        riskLimits={riskLimits}
+        session={session}
+      />
     </div>
   );
 }

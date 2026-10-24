@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 type Props = {
   accountId: number;
+  riskLimits: { perTrade: string; dailyLoss: string };
   session?: {
     id: number;
     date: string;
@@ -33,7 +34,7 @@ type Props = {
   };
 };
 
-export function SessionForm({ accountId, session }: Props) {
+export function SessionForm({ accountId, riskLimits, session }: Props) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
 
@@ -168,7 +169,7 @@ export function SessionForm({ accountId, session }: Props) {
         <CardContent className="flex flex-col gap-3">
           <CheckboxField
             name="followedRiskRules"
-            label="Followed risk rules (1% max, $810 daily loss limit)"
+            label={`Followed risk rules (${riskLimits.perTrade} max, ${riskLimits.dailyLoss} daily loss limit)`}
             defaultChecked={session?.followedRiskRules ?? false}
           />
           <CheckboxField

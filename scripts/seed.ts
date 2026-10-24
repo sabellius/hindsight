@@ -15,7 +15,19 @@ if (existing.count === 0) {
   db.prepare(
     "INSERT INTO accounts (name, type, created_at) VALUES (?, ?, ?)",
   ).run("Paper Account", "paper", Date.now());
-  console.log("Seeded 2 default accounts");
+  db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)").run(
+    "risk_capital",
+    "27000",
+  );
+  db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)").run(
+    "risk_per_trade_percent",
+    "1",
+  );
+  db.prepare("INSERT INTO settings (key, value) VALUES (?, ?)").run(
+    "max_daily_loss_percent",
+    "3",
+  );
+  console.log("Seeded 2 default accounts and risk parameters");
 } else {
   console.log("Accounts already exist, skipping seed");
 }
