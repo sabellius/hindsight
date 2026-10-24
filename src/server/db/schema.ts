@@ -26,7 +26,7 @@ export const trades = sqliteTable("trades", {
   exitTime: integer("exit_time", { mode: "timestamp_ms" }).notNull(),
   entryPrice: real("entry_price").notNull(),
   exitPrice: real("exit_price").notNull(),
-  quantity: integer("quantity").notNull(),
+  quantity: real("quantity").notNull(),
   stopLoss: real("stop_loss"),
   target: real("target"),
   commission: real("commission").notNull().default(0),
@@ -79,9 +79,11 @@ export const executions = sqliteTable("executions", {
     .references(() => trades.id, { onDelete: "cascade" }),
   side: text("side", { enum: ["buy", "sell"] }).notNull(),
   price: real("price").notNull(),
-  quantity: integer("quantity").notNull(),
+  quantity: real("quantity").notNull(),
   timestamp: integer("timestamp", { mode: "timestamp_ms" }).notNull(),
   commission: real("commission").notNull().default(0),
+  currency: text("currency").notNull().default("USD"),
+  commissionCurrency: text("commission_currency").notNull().default("USD"),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),
@@ -107,4 +109,44 @@ export const tags = sqliteTable("tags", {
 export const settings = sqliteTable("settings", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
+});
+
+export const cashTransactions = sqliteTable("cash_transactions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  accountId: integer("account_id")
+    .notNull()
+    .references(() => accounts.id),
+  type: text("type"),
+  amount: real("amount"),
+  currency: text("currency").notNull(),
+  eventDate: integer("event_date", { mode: "timestamp_ms" }),
+  dedupeKey: text("dedupe_key").notNull().unique(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const importBatches = sqliteTable("import_batches", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  fileName: text("file_name"),
+  rawFilePath: text("raw_file_path"),
+  accountId: integer("account_id"),
+  importedCount: integer("imported_count").notNull().default(0),
+  skippedCount: integer("skipped_count").notNull().default(0),
+  flaggedCount: integer("flagged_count").notNull().default(0),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const importFlags = sqliteTable("import_flags", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  batchId: integer("batch_id")
+    .notNull()
+    .references(() => importBatches.id),
+  reason: text("reason").notNull(),
+  rawFields: text("raw_fields").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
 });
