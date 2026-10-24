@@ -13,5 +13,5 @@ pre-commit:
 
 pre-push:
   jobs:
-    - name: test
-      run: pnpm test
+    - name: gate
+      run: pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm build

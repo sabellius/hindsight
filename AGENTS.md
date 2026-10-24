@@ -17,7 +17,8 @@ quality is a feature.
 
 ## Gate & Commands
 
-Merge gate: `pnpm typecheck && pnpm lint && pnpm test` (CI enforces it).
+Merge gate: `pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm build` —
+the pre-push hook and CI run the exact same four commands.
 All scripts live in `package.json`. Schema migrations: `pnpm db:generate
 --name=<kebab-intent>` — never omit `--name`.
 

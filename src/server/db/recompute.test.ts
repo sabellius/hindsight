@@ -1,8 +1,12 @@
-// @vitest-environment node
 import { eq } from "drizzle-orm";
 import { expect } from "vitest";
 import { recomputeTradeMetrics } from "@/server/db/recompute";
 import { accounts, executions, trades } from "@/server/db/schema";
+import {
+  accountFactory,
+  executionFactory,
+  tradeFactory,
+} from "@/testing/factories";
 import { test } from "@/testing/fixtures";
 
 test("recomputes stored metrics from executions after a stop edit", ({
@@ -10,47 +14,34 @@ test("recomputes stored metrics from executions after a stop edit", ({
 }) => {
   const [account] = db
     .insert(accounts)
-    .values({ name: "Test account", type: "live" })
+    .values(accountFactory.build())
     .returning()
     .all();
   const [trade] = db
     .insert(trades)
-    .values({
-      accountId: account.id,
-      ticker: "AAPL",
-      side: "long",
-      entryTime: new Date("2026-01-05T15:30:00Z"),
-      exitTime: new Date("2026-01-05T16:30:00Z"),
-      entryPrice: 100,
-      exitPrice: 105,
-      quantity: 100,
-      commission: 0,
-      stopLoss: 100,
-      profitLoss: 0,
-      profitLossPercent: 0,
-      riskMultiple: null,
-    })
+    .values(
+      tradeFactory.build({
+        accountId: account.id,
+        quantity: 100,
+        stopLoss: 100,
+        profitLoss: 0,
+        profitLossPercent: 0,
+        riskMultiple: null,
+      }),
+    )
     .returning()
     .all();
 
   db.insert(executions)
     .values([
-      {
-        tradeId: trade.id,
-        side: "buy",
-        price: 100,
-        quantity: 100,
-        commission: 0,
-        timestamp: new Date("2026-01-05T15:30:00Z"),
-      },
-      {
+      executionFactory.build({ tradeId: trade.id, quantity: 100 }),
+      executionFactory.build({
         tradeId: trade.id,
         side: "sell",
         price: 105,
         quantity: 100,
-        commission: 0,
         timestamp: new Date("2026-01-05T16:30:00Z"),
-      },
+      }),
     ])
     .run();
 
@@ -66,26 +57,20 @@ test("recomputes stored metrics from executions after a stop edit", ({
 test("recomputes from flat fields when a trade has no executions", ({ db }) => {
   const [account] = db
     .insert(accounts)
-    .values({ name: "Test account", type: "live" })
+    .values(accountFactory.build())
     .returning()
     .all();
   const [trade] = db
     .insert(trades)
-    .values({
-      accountId: account.id,
-      ticker: "AAPL",
-      side: "long",
-      entryTime: new Date("2026-01-05T15:30:00Z"),
-      exitTime: new Date("2026-01-05T16:30:00Z"),
-      entryPrice: 100,
-      exitPrice: 105,
-      quantity: 10,
-      commission: 0,
-      stopLoss: 100,
-      profitLoss: 0,
-      profitLossPercent: 0,
-      riskMultiple: null,
-    })
+    .values(
+      tradeFactory.build({
+        accountId: account.id,
+        stopLoss: 100,
+        profitLoss: 0,
+        profitLossPercent: 0,
+        riskMultiple: null,
+      }),
+    )
     .returning()
     .all();
 
@@ -101,38 +86,30 @@ test("recomputes from flat fields when a trade has no executions", ({ db }) => {
 test("open trade stores null metrics, never fake losses", ({ db }) => {
   const [account] = db
     .insert(accounts)
-    .values({ name: "Test account", type: "live" })
+    .values(accountFactory.build())
     .returning()
     .all();
   const [trade] = db
     .insert(trades)
-    .values({
-      accountId: account.id,
-      ticker: "AAPL",
-      side: "long",
-      entryTime: new Date("2026-01-05T15:30:00Z"),
-      exitTime: new Date("2026-01-05T16:30:00Z"),
-      entryPrice: 100,
-      exitPrice: 0,
-      quantity: 50,
-      commission: 1,
-      stopLoss: 98,
-      profitLoss: -5001,
-      profitLossPercent: -100,
-      riskMultiple: -50.01,
-    })
+    .values(
+      tradeFactory.build({
+        accountId: account.id,
+        profitLoss: -5001,
+        profitLossPercent: -100,
+        riskMultiple: -50.01,
+      }),
+    )
     .returning()
     .all();
 
   db.insert(executions)
-    .values({
-      tradeId: trade.id,
-      side: "buy",
-      price: 100,
-      quantity: 50,
-      commission: 1,
-      timestamp: new Date("2026-01-05T15:30:00Z"),
-    })
+    .values(
+      executionFactory.build({
+        tradeId: trade.id,
+        quantity: 50,
+        commission: 1,
+      }),
+    )
     .run();
 
   recomputeTradeMetrics(db, trade.id);
