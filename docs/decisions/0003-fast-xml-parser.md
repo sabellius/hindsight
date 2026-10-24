@@ -26,7 +26,7 @@ no other module may import it (later slice pins that in review).
 | `fast-xml-parser` | 5.11.2 | itself |
 | `@nodable/entities` | 3.1.0 | same-author split |
 | `fast-xml-builder` | 1.3.1 | same-author split |
-| `is-unsafe` | 2.2.0 | same-author split |
+| `is-unsafe` | 2.0.2 | same-author split |
 | `path-expression-matcher` | 1.6.2 | same-author split |
 | `strnum` | 2.5.1 | same-author split |
 | `xml-naming` | 0.3.0 | same-author split |
