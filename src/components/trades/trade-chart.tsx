@@ -1,6 +1,4 @@
-import { formatCurrency } from "@/lib/format";
-
-("use client");
+"use client";
 
 import {
   CandlestickSeries,
@@ -13,6 +11,7 @@ import {
   type Time,
 } from "lightweight-charts";
 import { useEffect, useRef } from "react";
+import { formatCurrency } from "@/lib/format";
 
 type Candle = {
   time: number;
