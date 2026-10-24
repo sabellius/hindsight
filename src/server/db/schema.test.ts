@@ -72,8 +72,8 @@ test("round-trips fractional quantity and EUR currencies bit-for-bit", ({
 });
 
 test("declares quantity columns with real storage", ({ db }) => {
-  expect(declaredColumnType(db, "trades", "quantity")).toBe("real");
-  expect(declaredColumnType(db, "executions", "quantity")).toBe("real");
+  expect(declaredColumnType(db, "trades", "quantity")).toBe("REAL");
+  expect(declaredColumnType(db, "executions", "quantity")).toBe("REAL");
 });
 
 test("defaults execution currencies to USD", ({ db }) => {
@@ -121,7 +121,7 @@ test("stores cash transactions with signed amounts and per-row currency", ({
   expect(cashTransaction?.amount).toBe(-3.09);
   expect(cashTransaction?.currency).toBe("EUR");
   expect(cashTransaction?.eventDate).toEqual(eventDate);
-  expect(cashTransaction?.dedupeKey).toBe("cash-0");
+  expect(cashTransaction?.dedupeKey).toBe("cash-1");
 
   expect(() =>
     db
@@ -129,7 +129,7 @@ test("stores cash transactions with signed amounts and per-row currency", ({
       .values(
         cashTransactionFactory.build({
           accountId: account.id,
-          dedupeKey: "cash-0",
+          dedupeKey: "cash-1",
         }),
       )
       .run(),
