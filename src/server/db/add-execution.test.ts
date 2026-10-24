@@ -1,4 +1,3 @@
-// @vitest-environment node
 import { eq, sql } from "drizzle-orm";
 import { expect } from "vitest";
 import { addExecution } from "@/server/db/add-execution";
