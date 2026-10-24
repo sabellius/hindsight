@@ -13,8 +13,10 @@ the spec directory.
 ## Contract
 
 - The ticket (Problem → Fix → Example → Done when) and the spec are the
-  contract. Do exactly that work. Anything outside them: stop and
-  escalate via contact_supervisor instead of deciding yourself.
+  contract. Do exactly that work. Anything outside them — spec-level
+  questions, new decisions, ambiguity — stop and ask the owner in your
+  session (or contact_supervisor if you were spawned as a child); never
+  decide them yourself and never route through another lane.
 - Test-first, always: the failing test lands before the implementation.
   Tests are deterministic — no real clock, no machine time zone,
   no network.
