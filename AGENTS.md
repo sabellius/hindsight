@@ -25,10 +25,22 @@ All scripts live in `package.json`. Schema migrations: `pnpm db:generate
 ## Area Rules (read before working there)
 
 - `src/server/db/AGENTS.md` — schema truth, migrations, sync-transaction trap
-- `src/testing/AGENTS.md` — test harness, DB fixtures, flake rules
+- `src/testing/AGENTS.md` — test harness, factories, flake rules
 - Structure and relationships: ask codegraph (`codegraph
   explore|query|node|context`, or the MCP server in `.pi/mcp.json`) —
   prefer it over file-tree walks
+
+## Agent Loop
+
+- Roles (definitions in `.pi/agents/`): `planner` drafts specs/plans —
+  never finalizes; `writer` implements one ticket in its worktree —
+  never merges or pushes; `verifier` reviews diffs fresh-context —
+  advisory, APPROVE/REJECT
+- Dispatch: sessions are peers — one session per worktree, asking the
+  owner directly when unclear; the resident session plans with the
+  owner and coordinates, it is not a required hop
+- Subagent run ids: `<TICKET>-<role>[-<slice>]` (e.g. `HND58-writer-schema`)
+  so every status line names its ticket and role
 
 ## Tickets & Git (YouTrack `HND`)
 
@@ -48,6 +60,8 @@ All scripts live in `package.json`. Schema migrations: `pnpm db:generate
 
 - No comments unless explicitly asked; no abbreviations in names
   (`profitLoss`, not `pnl`)
+- Every applied change is explained with its diff in plain language —
+  the owner reviews what happened, not a summary of it
 - Conventional commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`,
   `refactor:`); brief, specific; no AI markers (no `Co-Authored-By`, no
   "Generated with", no robot emoji); commit per logical unit
