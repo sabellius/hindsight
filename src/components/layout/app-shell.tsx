@@ -1,15 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const COLLAPSED_KEY = "hindsight-sidebar-collapsed";
-
-function getInitialCollapsed() {
-  if (typeof window === "undefined") return false;
-  return localStorage.getItem(COLLAPSED_KEY) === "true";
-}
 
 export function AppShell({
   children,
@@ -20,7 +15,11 @@ export function AppShell({
   accounts: { id: number; name: string; type: string }[];
   activeAccountId: number;
 }) {
-  const [collapsed, setCollapsed] = useState(getInitialCollapsed);
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    setCollapsed(localStorage.getItem(COLLAPSED_KEY) === "true");
+  }, []);
 
   function toggle() {
     const next = !collapsed;
