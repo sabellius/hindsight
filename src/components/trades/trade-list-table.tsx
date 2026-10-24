@@ -10,6 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  formatCurrency,
+  formatRiskMultiple,
+  formatShortDate,
+  formatSignedCurrency,
+  formatTime,
+} from "@/lib/format";
 
 type Trade = {
   id: number;
@@ -119,10 +126,10 @@ export function TradeListTable({
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
-                  ${trade.entryPrice.toFixed(2)}
+                  {formatCurrency(trade.entryPrice)}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
-                  ${trade.exitPrice.toFixed(2)}
+                  {formatCurrency(trade.exitPrice)}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
                   {trade.quantity}
@@ -131,24 +138,19 @@ export function TradeListTable({
                   className={`text-right tabular-nums font-semibold ${isProfit ? "text-profit" : "text-loss"}`}
                 >
                   {trade.profitLoss != null
-                    ? `${isProfit ? "+" : ""}$${trade.profitLoss.toFixed(2)}`
+                    ? formatSignedCurrency(trade.profitLoss ?? 0)
                     : "—"}
                 </TableCell>
                 <TableCell
                   className={`text-right tabular-nums ${isProfit ? "text-profit" : "text-loss"}`}
                 >
-                  {trade.riskMultiple != null ? `${trade.riskMultiple}R` : "—"}
+                  {trade.riskMultiple != null
+                    ? formatRiskMultiple(trade.riskMultiple)
+                    : "—"}
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">
-                  {trade.entryTime.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}{" "}
-                  {trade.entryTime.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false,
-                  })}
+                  {formatShortDate(trade.entryTime)}{" "}
+                  {formatTime(trade.entryTime)}
                 </TableCell>
               </TableRow>
             );

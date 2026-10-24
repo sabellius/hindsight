@@ -17,7 +17,7 @@ import {
 describe("roundToCents", () => {
   it("rounds to two decimals", () => {
     expect(roundToCents(10.555)).toBe(10.56);
-    expect(roundToCents(-3.14159)).toBe(-3.14);
+    expect(roundToCents(-3.146)).toBe(-3.15);
     expect(roundToCents(2)).toBe(2);
   });
 });
