@@ -39,8 +39,10 @@ All scripts live in `package.json`. Schema migrations: `pnpm db:generate
 - Dispatch: sessions are peers — one session per worktree, asking the
   owner directly when unclear; the resident session plans with the
   owner and coordinates, it is not a required hop
-- Subagent run ids: `<TICKET>-<role>[-<slice>]` (e.g. `HND58-writer-schema`)
-  so every status line names its ticket and role
+- Subagent run ids: the tool assigns UUIDs (the id field does not bind) —
+  every task brief starts with `RUN ID: <TICKET>-<role>[-<slice>]` so the
+  run self-identifies in status, notifications, and reports; the
+  resident maps UUIDs to run ids
 
 ## Tickets & Git (YouTrack `HND`)
 
