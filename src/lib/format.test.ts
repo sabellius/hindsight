@@ -55,6 +55,7 @@ describe("date and time formatting", () => {
   it("formats short dates", () => {
     expect(formatShortDate(timestamp)).toMatch(/Jan \d+/);
     expect(formatShortDate("2026-01-05T00:00:00")).toMatch(/Jan 4|Jan 5/);
+    expect(formatShortDate(new Date(timestamp))).toMatch(/Jan \d+/);
   });
 
   it("formats dates with year, header, long, and weekday variants", () => {
