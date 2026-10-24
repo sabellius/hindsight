@@ -11,6 +11,8 @@ export const executionFactory = Factory.define<ExecutionInsert>(
     quantity: 10,
     timestamp: new Date("2026-01-05T15:30:00Z"),
     commission: 0,
+    currency: "USD",
+    commissionCurrency: "USD",
     createdAt: new Date("2026-01-05T15:30:00Z"),
   }),
 );
